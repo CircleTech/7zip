@@ -182,7 +182,7 @@ AFLAGS_ABI = -coff -DABI_CDECL
 # -DABI_LINUX
 # -DABI_CDECL
 endif
-AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
+AFLAGS = -c -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
 
 else  # IS_MINGW
 
@@ -194,7 +194,7 @@ AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
 # -DABI_LINUX
 # -DABI_CDECL
 endif
-AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
+AFLAGS = -c -nologo $(AFLAGS_ABI) -Fo$(O)/
 
 endif  # IS_MINGW
 
@@ -831,11 +831,17 @@ $O/HmacSha1.o: ../../Crypto/HmacSha1.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/HmacSha256.o: ../../Crypto/HmacSha256.cpp
 	$(CXX) $(CXXFLAGS) $<
+$O/HmacSha512.o: ../../Crypto/HmacSha512.cpp
+	$(CXX) $(CXXFLAGS) $<
 $O/MyAes.o: ../../Crypto/MyAes.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/MyAesReg.o: ../../Crypto/MyAesReg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/Pbkdf2HmacSha1.o: ../../Crypto/Pbkdf2HmacSha1.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Pbkdf2HmacSha256.o: ../../Crypto/Pbkdf2HmacSha256.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Pbkdf2HmacSha512.o: ../../Crypto/Pbkdf2HmacSha512.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/RandGen.o: ../../Crypto/RandGen.cpp
 	$(CXX) $(CXXFLAGS) $<
@@ -851,7 +857,8 @@ $O/ZipCrypto.o: ../../Crypto/ZipCrypto.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/ZipStrong.o: ../../Crypto/ZipStrong.cpp
 	$(CXX) $(CXXFLAGS) $<
-
+$O/CtCipherCoder.o: ../../Crypto/CtCipherCoder.cpp
+	$(CXX) $(CXXFLAGS) $<
 
 
 $O/CoderMixer2.o: ../../Archive/Common/CoderMixer2.cpp
@@ -1242,6 +1249,8 @@ $O/Sha256.o: ../../../../C/Sha256.c
 $O/Sha3.o: ../../../../C/Sha3.c
 	$(CC) $(CFLAGS) $<
 $O/Sha512.o: ../../../../C/Sha512.c
+	$(CC) $(CFLAGS) $<
+$O/Camellia.o: ../../../../C/Camellia.c
 	$(CC) $(CFLAGS) $<
 $O/Sha512Opt.o: ../../../../C/Sha512Opt.c
 	$(CC) $(CFLAGS) $<

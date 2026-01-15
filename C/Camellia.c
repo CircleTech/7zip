@@ -28,6 +28,11 @@
 
 #include "camellia.h"
 
+#if defined(__clang__)
+#pragma GCC diagnostic ignored "-Wcomma"
+#endif
+
+
 /* u32 must be 32bit word */
 typedef unsigned int u32;
 typedef unsigned char u8;
@@ -444,7 +449,7 @@ static const u32 camellia_sp4404[256] = {
 #define subl(x) subL[(x)]
 #define subr(x) subR[(x)]
 
-void camellia_setup128(const unsigned char *key, u32 *subkey)
+static void camellia_setup128(const unsigned char *key, u32 *subkey)
 {
     u32 kll, klr, krl, krr;
     u32 il, ir, t0, t1, w0, w1;
@@ -655,7 +660,7 @@ void camellia_setup128(const unsigned char *key, u32 *subkey)
     return;
 }
 
-void camellia_setup256(const unsigned char *key, u32 *subkey)
+static void camellia_setup256(const unsigned char *key, u32 *subkey)
 {
     u32 kll,klr,krl,krr;           /* left half of key */
     u32 krll,krlr,krrl,krrr;       /* right half of key */
@@ -941,7 +946,7 @@ void camellia_setup256(const unsigned char *key, u32 *subkey)
     return;
 }
 
-void camellia_setup192(const unsigned char *key, u32 *subkey)
+static void camellia_setup192(const unsigned char *key, u32 *subkey)
 {
     unsigned char kk[32];
     u32 krll, krlr, krrl,krrr;
@@ -963,7 +968,7 @@ void camellia_setup192(const unsigned char *key, u32 *subkey)
  *
  * "io" must be 4byte aligned and big-endian data.
  */
-void camellia_encrypt128(const u32 *subkey, u32 *io)
+static void camellia_encrypt128(const u32 *subkey, u32 *io)
 {
     u32 il, ir, t0, t1;
 
@@ -1053,7 +1058,7 @@ void camellia_encrypt128(const u32 *subkey, u32 *io)
     return;
 }
 
-void camellia_decrypt128(const u32 *subkey, u32 *io)
+static void camellia_decrypt128(const u32 *subkey, u32 *io)
 {
     u32 il,ir,t0,t1;               /* temporary valiables */
     
@@ -1146,7 +1151,7 @@ void camellia_decrypt128(const u32 *subkey, u32 *io)
 /**
  * stuff for 192 and 256bit encryption/decryption
  */
-void camellia_encrypt256(const u32 *subkey, u32 *io)
+static void camellia_encrypt256(const u32 *subkey, u32 *io)
 {
     u32 il,ir,t0,t1;           /* temporary valiables */
 
@@ -1260,7 +1265,7 @@ void camellia_encrypt256(const u32 *subkey, u32 *io)
     return;
 }
 
-void camellia_decrypt256(const u32 *subkey, u32 *io)
+static void camellia_decrypt256(const u32 *subkey, u32 *io)
 {
     u32 il,ir,t0,t1;           /* temporary valiables */
 
@@ -1424,10 +1429,10 @@ void Camellia_EncryptBlock(const int keyBitLength,
 	break;
     }
 
-    PUTU32(ciphertext, tmp[0]);
-    PUTU32(ciphertext + 4, tmp[1]);
-    PUTU32(ciphertext + 8, tmp[2]);
-    PUTU32(ciphertext + 12, tmp[3]);
+    PUTU32(ciphertext, tmp[0])
+    PUTU32(ciphertext + 4, tmp[1])
+    PUTU32(ciphertext + 8, tmp[2])
+    PUTU32(ciphertext + 12, tmp[3])
 }
 
 void Camellia_DecryptBlock(const int keyBitLength, 
@@ -1454,10 +1459,10 @@ void Camellia_DecryptBlock(const int keyBitLength,
     default:
 	break;
     }
-    PUTU32(plaintext, tmp[0]);
-    PUTU32(plaintext + 4, tmp[1]);
-    PUTU32(plaintext + 8, tmp[2]);
-    PUTU32(plaintext + 12, tmp[3]);
+    PUTU32(plaintext, tmp[0])
+    PUTU32(plaintext + 4, tmp[1])
+    PUTU32(plaintext + 8, tmp[2])
+    PUTU32(plaintext + 12, tmp[3])
 }
 
 /* ========================================
@@ -1490,10 +1495,10 @@ void Camellia_CtrCode(unsigned int* p, unsigned char* data, size_t numBlocks)
 
         /* Convert counter from little-endian u32 array to big-endian byte array
          * Camellia uses big-endian byte order internally */
-        PUTU32(counterBlock, p[0]);
-        PUTU32(counterBlock + 4, p[1]);
-        PUTU32(counterBlock + 8, p[2]);
-        PUTU32(counterBlock + 12, p[3]);
+        PUTU32(counterBlock, p[0])
+        PUTU32(counterBlock + 4, p[1])
+        PUTU32(counterBlock + 8, p[2])
+        PUTU32(counterBlock + 12, p[3])
 
         /* Encrypt the counter block */
         Camellia_EncryptBlock(256,  /* keyBitLength - use 256 for CTEnhanced */

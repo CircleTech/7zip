@@ -74,11 +74,11 @@ Z7_COM7F_IMF(CLzmaEncoder::Code(ISequentialInStream *inStream, ISequentialOutStr
 
 
 CAddCommon::CAddCommon():
-    _isLzmaEos(false),
-    _buf(NULL),
+    _isLzmaEos(false),    
     _filterSpec(NULL),         
     _filterAesSpec(NULL),      
-    _filterCtEnhancedSpec(NULL)
+    _filterCtEnhancedSpec(NULL),
+    _buf(NULL)
     {}
 
 void CAddCommon::SetOptions(const CCompressionMethodMode &options)

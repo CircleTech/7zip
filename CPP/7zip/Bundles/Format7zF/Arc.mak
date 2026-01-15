@@ -246,9 +246,12 @@ CRYPTO_OBJS = \
   $O\7zAesRegister.obj \
   $O\HmacSha1.obj \
   $O\HmacSha256.obj \
+  $O\HmacSha512.obj \  
   $O\MyAes.obj \
   $O\MyAesReg.obj \
   $O\Pbkdf2HmacSha1.obj \
+  $O\Pbkdf2HmacSha256.obj \  
+  $O\Pbkdf2HmacSha512.obj \  
   $O\RandGen.obj \
   $O\Rar20Crypto.obj \
   $O\Rar5Aes.obj \

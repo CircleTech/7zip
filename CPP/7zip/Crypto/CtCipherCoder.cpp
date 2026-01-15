@@ -15,6 +15,11 @@ This code implements CircleTech Enhanced ZIP (CTEnhanced) encryption format.
 #include "RandGen.h"
 #include "CtCipherCoder.h"
 
+#if defined(__clang__)
+#pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
+
 namespace NCrypto {
     namespace NCtCipherCoder {
 
@@ -37,6 +42,10 @@ namespace NCrypto {
                 _keySize(keySize)
             {
                 _camellia.Alloc(CAMELLIA_CTR_STATE_SIZE);
+            }
+
+            virtual ~CCamelliaCtrCoder() {
+
             }
 
             HRESULT SetKey(const Byte* data, UInt32 size)
@@ -96,6 +105,7 @@ namespace NCrypto {
 
             const unsigned keySize = (unsigned)_key.Props.GetKeySize();
             const unsigned macSize = (unsigned)_key.Props.GetMacSize();
+            (void)macSize;
 
             // Allocate buffer for HMAC context
             if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)

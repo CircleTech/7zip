@@ -234,6 +234,7 @@ ZIP_OBJS = \
   $O/ZipUpdate.o \
   $O/ZipRegister.o \
 
+
 COMPRESS_OBJS = \
   $O/Bcj2Coder.o \
   $O/Bcj2Register.o \
@@ -298,11 +299,15 @@ endif
 CRYPTO_OBJS = \
   $O/7zAes.o \
   $O/7zAesRegister.o \
+  $O/CtCipherCoder.o \
   $O/HmacSha1.o \
   $O/HmacSha256.o \
+  $O/HmacSha512.o \
   $O/MyAes.o \
   $O/MyAesReg.o \
   $O/Pbkdf2HmacSha1.o \
+  $O/Pbkdf2HmacSha256.o \
+  $O/Pbkdf2HmacSha512.o \
   $O/RandGen.o \
   $O/WzAes.o \
   $O/ZipCrypto.o \
@@ -332,6 +337,7 @@ C_OBJS = \
   $O/Bra86.o \
   $O/BraIA64.o \
   $O/BwtSort.o \
+  $O/Camellia.o \
   $O/CpuArch.o \
   $O/Delta.o \
   $O/HuffEnc.o \

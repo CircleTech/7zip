@@ -8,6 +8,11 @@
 
 #include "HmacSha512.h"
 
+#if defined(__clang__)
+#pragma GCC diagnostic ignored "-Wc++98-compat-pedantic"
+#endif
+
+
 namespace NCrypto {
     namespace NSha512 {
 

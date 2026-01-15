@@ -16,9 +16,10 @@
 #define MY_AUTHOR_NAME "Igor Pavlov"
 #define MY_COPYRIGHT_PD "Igor Pavlov : Public domain"
 #define MY_COPYRIGHT_CR "Copyright (c) 1999-2025 Igor Pavlov"
+#define CIRCLETECH_COPYRIGHT_CR "CTEnhancedZip Format (c) 2026 CircleTech, s.r.o."
 
 #ifdef USE_COPYRIGHT_CR
-  #define MY_COPYRIGHT MY_COPYRIGHT_CR
+  #define MY_COPYRIGHT MY_COPYRIGHT_CR " / " CIRCLETECH_COPYRIGHT_CR
 #else
   #define MY_COPYRIGHT MY_COPYRIGHT_PD
 #endif

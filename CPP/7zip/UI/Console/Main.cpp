@@ -160,6 +160,12 @@ static const char * const kHelpString =
     "  -m{Parameters} : set compression Method\n"
     "    -mmt[N] : set number of CPU threads\n"
     "    -mx[N] : set compression level: -mx1 (fastest) ... -mx9 (ultra)\n"
+    #ifndef Z7_NO_CRYPTO
+    "  -mem=CTEnhanced : together with -tzip, create a CTEnhancedZip\n"
+    "    -mec={AES256|Camellia256} : for CTEnhancedZip, use this cipher (default: AES256)\n"
+    "    -mekp={HMAC-SHA256|HMAC-SHA512} : for CTEnhancedZip, use this MAC/PRF for PBKDF2 (default: HMAC-SHA256)\n"
+    "    -meki={positive integer} : for CTEnhancedZip, use this iteration count for PBKDF2 (default: 5000)\n"
+    #endif  
     "  -o{Directory} : set Output directory\n"
     #ifndef Z7_NO_CRYPTO
     "  -p{Password} : set Password\n"
