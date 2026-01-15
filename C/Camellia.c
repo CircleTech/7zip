@@ -26,7 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "camellia.h"
+#include "Camellia.h"
 
 #if defined(__clang__)
 #pragma GCC diagnostic ignored "-Wcomma"
