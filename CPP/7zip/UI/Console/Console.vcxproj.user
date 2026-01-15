@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>a -bd -mem=CTEnhanced -pkrzFc4wiY7e4DWwhL8Evhz7LERpmJUM3I7jpd5uTc6B89f8ViI c41581df.zip onedrive.signature</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\Users\Marian Kechlibar\Downloads\0.6\Example2\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugU|Win32'">
+    <LocalDebuggerCommandArguments>l -slt archive.zip</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\util\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>x -y -pUCKXAsoG1yfAWxAImLaikoEGhXDOVul2w9Tee7EXvQoXZekplU 749de44c.cedc</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\Users\Marian Kechlibar\Downloads\0.6\Example3\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseU|Win32'">
+    <LocalDebuggerCommandArguments>l -slt archive.zip</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\util\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>a -bd -mem=CTEnhanced -pkrzFc4wiY7e4DWwhL8Evhz7LERpmJUM3I7jpd5uTc6B89f8ViI c41581df.zip onedrive.signature</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\Users\Marian Kechlibar\Downloads\0.6\Example2\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugU|x64'">
+    <LocalDebuggerCommandArguments>l -slt archive.zip</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\util\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>x -y -pUCKXAsoG1yfAWxAImLaikoEGhXDOVul2w9Tee7EXvQoXZekplU 749de44c.cedc</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\Users\Marian Kechlibar\Downloads\0.6\Example3\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseU|x64'">
+    <LocalDebuggerCommandArguments>l -slt archive.zip</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>c:\util\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

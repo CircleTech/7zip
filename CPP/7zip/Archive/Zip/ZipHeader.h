@@ -64,7 +64,8 @@ namespace NFileHeader
       kJpeg = 96,
       kWavPack = 97,
       kPPMd = 98,
-      kWzAES = 99
+      kWzAES = 99,
+      kCtEncryption = 112
     };
 
     const Byte kMadeByProgramVersion = 63;
@@ -98,6 +99,7 @@ namespace NFileHeader
       kUnix2 = 0x7855,              // Info-ZIP
       kUnixN = 0x7875,              // Info-ZIP
       kWzAES = 0x9901,
+      kCTEnhancedZip = 0xCEDC,
       kApkAlign = 0xD935
     };
   }

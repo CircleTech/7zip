@@ -75,7 +75,10 @@ Z7_COM7F_IMF(CLzmaEncoder::Code(ISequentialInStream *inStream, ISequentialOutStr
 
 CAddCommon::CAddCommon():
     _isLzmaEos(false),
-    _buf(NULL)
+    _buf(NULL),
+    _filterSpec(NULL),         
+    _filterAesSpec(NULL),      
+    _filterCtEnhancedSpec(NULL)
     {}
 
 void CAddCommon::SetOptions(const CCompressionMethodMode &options)
@@ -146,7 +149,7 @@ HRESULT CAddCommon::Set_Pre_CompressionResult(bool inSeqMode, bool outSeqMode, U
   if (_options.Password_Defined)
   {
     opRes.ExtractVersion = NCompressionMethod::kExtractVersion_ZipCrypto;
-    if (_options.IsAesMode)
+    if (_options.IsAesMode || _options.IsCtEnhancedMode)
       opRes.ExtractVersion = NCompressionMethod::kExtractVersion_Aes;
     else
     {
@@ -283,6 +286,27 @@ HRESULT CAddCommon::Compress(
           RINOK(_filterAesSpec->CryptoSetPassword((const Byte *)(const char *)_options.Password, _options.Password.Len()))
         }
         RINOK(_filterAesSpec->WriteHeader(outStream))
+      }
+      else if (_options.IsCtEnhancedMode)
+      {
+          opRes.ExtractVersion = NCompressionMethod::kExtractVersion_Aes;
+          if (!_cryptoStream->Filter)
+          {
+              _cryptoStream->Filter = _filterCtEnhancedSpec = new NCrypto::NCtCipherCoder::CEncoder;
+
+              // Set CTEnhanced properties (with actual compression method)
+              CCtEnhancedZipProps props = _options.CtEnhancedProps;
+              props.Method = method;  // Set to actual compression method
+              if (!_filterCtEnhancedSpec->SetProps(props))
+                  return E_FAIL;
+
+              // Set password
+              RINOK(_filterCtEnhancedSpec->CryptoSetPassword(
+                  (const Byte*)(const char*)_options.Password,
+                  _options.Password.Len()))
+          }
+          // Write header (salt + legacy field)
+          RINOK(_filterCtEnhancedSpec->WriteHeader(outStream))
       }
       else
       {
@@ -455,6 +479,10 @@ HRESULT CAddCommon::Compress(
       {
         RINOK(_filterAesSpec->WriteFooter(outStream))
       }
+      else if (_options.IsCtEnhancedMode)
+      {
+          RINOK(_filterCtEnhancedSpec->WriteFooter(outStream))
+      }
     }
     
     RINOK(outStream->Seek(0, STREAM_SEEK_CUR, &opRes.PackSize))
@@ -470,9 +498,16 @@ HRESULT CAddCommon::Compress(
 
     if (_options.Password_Defined)
     {
-      if (opRes.PackSize < opRes.UnpackSize +
-          (_options.IsAesMode ? _filterAesSpec->GetAddPackSize() : NCrypto::NZip::kHeaderSize))
-        break;
+        UInt64 encryptionOverhead;
+        if (_options.IsAesMode)
+            encryptionOverhead = _filterAesSpec->GetAddPackSize();
+        else if (_options.IsCtEnhancedMode)
+            encryptionOverhead = _filterCtEnhancedSpec->GetAddPackSize();
+        else
+            encryptionOverhead = NCrypto::NZip::kHeaderSize;
+
+        if (opRes.PackSize < opRes.UnpackSize + encryptionOverhead)
+            break;
     }
     else if (opRes.PackSize < opRes.UnpackSize)
       break;

@@ -71,6 +71,26 @@ static void AddAesExtra(CItem &item, Byte aesKeyMode, UInt16 method)
   item.CentralExtra.SubBlocks.Add(sb);
 }
 
+static void AddCtEnhancedExtra(CItem& item, const CCtEnhancedZipProps& props, UInt16 method)
+{
+    CCtEnhancedZipExtra ctField;
+    ctField.Props = props;
+    ctField.Props.Method = method;  // Store original compression method
+
+    item.Method = NFileHeader::NCompressionMethod::kCtEncryption;
+    item.Crc = 0;  // CTEnhanced uses MAC authentication, not CRC
+
+    CExtraSubBlock sb;
+    ctField.SetSubBlock(sb);
+    item.LocalExtra.SubBlocks.Add(sb);
+    item.CentralExtra.SubBlocks.Add(sb);
+
+    // Set CTEnhanced flags
+    item.IsCtEnhancedLocal = true;
+    item.CtPropsLocal = ctField.Props;
+    item.IsCtEnhancedCentral = true;
+    item.CtPropsCentral = ctField.Props;
+}
 
 static void Copy_From_UpdateItem_To_ItemOut(const CUpdateItem &ui, CItemOut &item)
 {
@@ -140,16 +160,22 @@ static void SetFileHeader(
     item.Size = 0;
     item.Crc = 0;
   }
-  else if (options.IsRealAesMode())
-    AddAesExtra(item, options.AesKeyMode, (Byte)(options.MethodSequence.IsEmpty() ? 8 : options.MethodSequence[0]));
+  else if (options.IsRealAesMode()) {
+      AddAesExtra(item, options.AesKeyMode, (Byte)(options.MethodSequence.IsEmpty() ? 8 : options.MethodSequence[0]));
+  } 
+  else if (options.IsRealCtEnhancedMode()) {
+      AddCtEnhancedExtra(item, options.CtEnhancedProps, (Byte)(options.MethodSequence.IsEmpty() ? 8 : options.MethodSequence[0]));
+  }
 }
 
 
 // we call SetItemInfoFromCompressingResult() after SetFileHeader()
 
-static void SetItemInfoFromCompressingResult(const CCompressingResult &compressingResult,
-    bool isAesMode, Byte aesKeyMode, CItem &item)
+static void SetItemInfoFromCompressingResult(const CCompressingResult &compressingResult, const CCompressionMethodMode& options, CItem &item)
 {
+  bool isAesMode = options.IsRealAesMode();
+  Byte aesKeyMode = options.AesKeyMode;
+  bool isCTEnhancedMode = options.IsRealCtEnhancedMode();
   item.ExtractVersion.Version = compressingResult.ExtractVersion;
   item.Method = compressingResult.Method;
   if (compressingResult.Method == NFileHeader::NCompressionMethod::kLZMA && compressingResult.LzmaEos)
@@ -161,9 +187,13 @@ static void SetItemInfoFromCompressingResult(const CCompressingResult &compressi
   item.LocalExtra.Clear();
   item.CentralExtra.Clear();
 
-  if (isAesMode)
-    AddAesExtra(item, aesKeyMode, compressingResult.Method);
-}
+  if (isAesMode) {
+      AddAesExtra(item, aesKeyMode, compressingResult.Method);
+  }
+  else if (isCTEnhancedMode) {
+      AddCtEnhancedExtra(item, options.CtEnhancedProps, compressingResult.Method);
+  }
+} 
 
 
 #ifndef Z7_ST
@@ -726,7 +756,7 @@ static HRESULT Update2St(
 
         // file Size can be 64-bit !!!
 
-        SetItemInfoFromCompressingResult(compressingResult, options->IsRealAesMode(), options->AesKeyMode, item);
+        SetItemInfoFromCompressingResult(compressingResult, *options, item);
 
         RINOK(archive.SetRestrictionFromCurrent())
         archive.WriteLocalHeader(item);
@@ -745,7 +775,7 @@ static HRESULT Update2St(
         if (item.HasDescriptor() != compressingResult.DescriptorMode)
           return E_FAIL;
 
-        SetItemInfoFromCompressingResult(compressingResult, options->IsRealAesMode(), options->AesKeyMode, item);
+        SetItemInfoFromCompressingResult(compressingResult, *options, item);
 
         archive.WriteLocalHeader_Replace(item);
        }
@@ -1441,8 +1471,7 @@ static HRESULT Update2(
           // SetItemInfoFromCompressingResult must be after SetFileHeader
           // to write correct Size.
 
-          SetItemInfoFromCompressingResult(memRef.CompressingResult,
-              options.IsRealAesMode(), options.AesKeyMode, item);
+          SetItemInfoFromCompressingResult(memRef.CompressingResult, options, item);
           RINOK(archive.ClearRestriction())
           archive.WriteLocalHeader(item);
           // RINOK(updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK));
@@ -1488,7 +1517,7 @@ static HRESULT Update2(
             memRef.PreDescriptorMode = compressingResult.DescriptorMode;
             SetFileHeader(options, ui, compressingResult.DescriptorMode, item);
 
-            SetItemInfoFromCompressingResult(compressingResult, options.IsRealAesMode(), options.AesKeyMode, item);
+            SetItemInfoFromCompressingResult(compressingResult, options, item);
 
             // file Size can be 64-bit !!!
             RINOK(archive.SetRestrictionFromCurrent())
@@ -1543,8 +1572,7 @@ static HRESULT Update2(
             RINOK(threadInfo.OutStreamSpec->WriteToRealStream())
             threadInfo.OutStreamSpec->ReleaseOutStream();
             SetFileHeader(options, ui, threadInfo.CompressingResult.DescriptorMode, item);
-            SetItemInfoFromCompressingResult(threadInfo.CompressingResult,
-                options.IsRealAesMode(), options.AesKeyMode, item);
+            SetItemInfoFromCompressingResult(threadInfo.CompressingResult, options, item);
 
             archive.WriteLocalHeader_Replace(item);
 

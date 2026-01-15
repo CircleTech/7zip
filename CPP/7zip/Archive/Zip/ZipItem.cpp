@@ -40,6 +40,7 @@ static const CUInt32PCharPair g_ExtraTypes[] =
   { NExtraID::kIzUnicodeName, "up" },
   { NExtraID::kIzNtSecurityDescriptor, "SD" },
   { NExtraID::kWzAES, "WzAES" },
+  { NExtraID::kCTEnhancedZip, "CircleTech Enhanced Encryption"},
   { NExtraID::kApkAlign, "ApkAlign" }
 };
 

@@ -1,5 +1,4 @@
 // Archive/ZipItem.h
-
 #ifndef ZIP7_INC_ARCHIVE_ZIP_ITEM_H
 #define ZIP7_INC_ARCHIVE_ZIP_ITEM_H
 
@@ -10,6 +9,7 @@
 #include "../../../Common/UTFConvert.h"
 
 #include "ZipHeader.h"
+#include "CtEnhancedDefs.h"
 
 namespace NArchive {
 namespace NZip {
@@ -124,6 +124,109 @@ struct CStrongCryptoExtra
 };
 
 
+
+// Structure for parsing/creating CT Enhanced Zip extra field
+struct CCtEnhancedZipExtra
+{
+    CCtEnhancedZipProps Props;
+
+    CCtEnhancedZipExtra()
+    {
+    }
+
+    // Parse from extra sub-block (similar to CWzAesExtra::ParseFromSubBlock)
+    bool ParseFromSubBlock(const CExtraSubBlock& sb)
+    {
+        if (sb.ID != NFileHeader::NExtraID::kCTEnhancedZip)
+            return false;
+        if (sb.Data.Size() < k_CtEnhancedExtra_Size)
+            return false;
+
+        const Byte* p = (const Byte*)sb.Data;
+
+        // Parse vendor version (2 bytes)
+        UInt16 vendorVersion = GetUi16(p);
+        if (vendorVersion != NCtEnhancedConstants::kVendorVersion)
+            return false;
+        p += 2;
+
+        // Parse vendor ID (2 bytes)
+        UInt16 vendorId = GetUi16(p);
+        if (vendorId != NCtEnhancedConstants::kVendorId)
+            return false;
+        p += 2;
+
+        // Parse block cipher algorithm (1 byte)
+        Props.CipherAlgorithm = *p++;
+
+        // Parse compression method (2 bytes) - should be 0x0000 for ciphertext        
+        UInt16 compMethod = GetUi16(p);
+        Props.Method = compMethod;
+        p += 2;
+
+        // Parse key derivation scheme (1 byte)
+        Props.KdfScheme = *p++;
+
+        // Parse PRF for KDF (1 byte)
+        Props.KdfPrf = *p++;
+
+        // Parse KDF iteration count (4 bytes)
+        Props.KdfIterations = GetUi32(p);
+        p += 4;
+
+        // Parse authentication code algorithm (1 byte)
+        Props.MacAlgorithm = *p++;
+
+        // Parse block cipher mode (1 byte)
+        Props.CipherMode = *p++;
+
+        // Validate
+        return Props.IsValid();
+    }
+
+    // Create extra sub-block (similar to CWzAesExtra::SetSubBlock)
+    void SetSubBlock(CExtraSubBlock& sb) const
+    {
+        sb.Data.Alloc(k_CtEnhancedExtra_Size);
+        sb.ID = NFileHeader::NExtraID::kCTEnhancedZip;
+        Byte* p = (Byte*)sb.Data;
+
+        // Vendor version (2 bytes)
+        p[0] = (Byte)(NCtEnhancedConstants::kVendorVersion & 0xff);
+        p[1] = (Byte)(NCtEnhancedConstants::kVendorVersion >> 8);
+
+        // Vendor ID (2 bytes)
+        p[2] = (Byte)(NCtEnhancedConstants::kVendorId & 0xff);
+        p[3] = (Byte)(NCtEnhancedConstants::kVendorId >> 8);
+
+        // Block cipher algorithm (1 byte)
+        p[4] = Props.CipherAlgorithm;
+
+        // Compression method (2 bytes)
+        p[5] = (Byte)Props.Method;
+        p[6] = (Byte)(Props.Method >> 8);
+
+        // Key derivation scheme (1 byte)
+        p[7] = Props.KdfScheme;
+
+        // PRF for KDF (1 byte)
+        p[8] = Props.KdfPrf;
+
+        // KDF iteration count (4 bytes)
+        p[9] = (Byte)Props.KdfIterations;
+        p[10] = (Byte)(Props.KdfIterations >> 8);
+        p[11] = (Byte)(Props.KdfIterations >> 16);
+        p[12] = (Byte)(Props.KdfIterations >> 24);
+
+        // Authentication code algorithm (1 byte)
+        p[13] = Props.MacAlgorithm;
+
+        // Block cipher mode (1 byte)
+        p[14] = Props.CipherMode;
+    }
+};
+
+
 struct CExtraBlock
 {
   CObjectVector<CExtraSubBlock> SubBlocks;
@@ -147,7 +250,21 @@ struct CExtraBlock
       res += SubBlocks[i].Data.Size() + 2 + 2;
     return res;
   }
-  
+
+  bool GetCtEnhancedZip(CCtEnhancedZipExtra& e) const
+  {
+    FOR_VECTOR(i, SubBlocks)
+      if (e.ParseFromSubBlock(SubBlocks[i]))
+          return true;
+    return false;
+  }
+
+  bool HasCtEnhancedZip() const
+  {
+      CCtEnhancedZipExtra e;
+      return GetCtEnhancedZip(e);
+  }
+
   bool GetWzAes(CWzAesExtra &e) const
   {
     FOR_VECTOR (i, SubBlocks)
@@ -189,9 +306,10 @@ struct CExtraBlock
     {
       i--;
       switch (SubBlocks[i].ID)
-      {
+      {        
         case NFileHeader::NExtraID::kStrongEncrypt:
         case NFileHeader::NExtraID::kWzAES:
+        case NFileHeader::NExtraID::kCTEnhancedZip:
           break;
         default:
           SubBlocks.Delete(i);
@@ -199,7 +317,6 @@ struct CExtraBlock
     }
   }
 };
-
 
 class CLocalItem
 {
@@ -241,6 +358,21 @@ public:
   unsigned GetDeflateLevel() const { return (Flags >> 1) & 3; }
   
   bool IsDir() const;
+
+  
+  // Check if this item uses CT Enhanced encryption
+  bool HasCtEncryption() const {
+      return IsCtEnhancedLocal;
+  }
+
+  // CT Enhanced support - available everywhere
+  bool IsCtEnhancedLocal;
+  CCtEnhancedZipProps CtPropsLocal;
+
+  CLocalItem() :
+      IsCtEnhancedLocal(false)
+  {
+  }
 
   /*
   void GetUnicodeString(const AString &s, UString &res) const
@@ -300,7 +432,8 @@ public:
       InternalAttrib(0),
       ExternalAttrib(0),
       FromLocal(false),
-      FromCentral(false)
+      FromCentral(false),
+      IsCtEnhancedCentral(false)
   {
     MadeByVersion.Version = 0;
     MadeByVersion.HostOS = 0;
@@ -348,6 +481,20 @@ public:
         || hostOS == NFileHeader::NHostOS::kNTFS
         || hostOS == NFileHeader::NHostOS::kUnix // do we need it?
         ) ? CP_OEMCP : CP_ACP);
+  }
+
+  bool IsCtEnhancedCentral;
+  CCtEnhancedZipProps CtPropsCentral;
+
+  bool ValidateCtConsistency() const {
+      if (IsCtEnhancedLocal != IsCtEnhancedCentral)
+          return false;
+      if (IsCtEnhancedLocal) {
+          // Compare all fields
+          return memcmp(&CtPropsLocal, &CtPropsCentral,
+              sizeof(CCtEnhancedZipProps)) == 0;
+      }
+      return true;
   }
 };
 

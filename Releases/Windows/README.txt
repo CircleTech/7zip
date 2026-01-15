@@ -1,0 +1,1 @@
+These are compiled versions of 7z with CTEnhancedZip support for 32-bit and 64-bit Windows, digitally signed by CircleTech.

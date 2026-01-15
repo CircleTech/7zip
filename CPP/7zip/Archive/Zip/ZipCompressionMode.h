@@ -10,6 +10,7 @@
 #endif
 
 #include "../Common/HandlerOut.h"
+#include "CtEnhancedDefs.h"
 
 namespace NArchive {
 namespace NZip {
@@ -21,6 +22,8 @@ struct CBaseProps: public CMultiMethodProps
 {
   bool IsAesMode;
   Byte AesKeyMode;
+  bool IsCtEnhancedMode;
+  CCtEnhancedZipProps CtEnhancedProps;
 
   void Init()
   {
@@ -28,6 +31,8 @@ struct CBaseProps: public CMultiMethodProps
     
     IsAesMode = false;
     AesKeyMode = 3;
+    IsCtEnhancedMode = false;
+
   }
 };
 
@@ -41,6 +46,8 @@ struct CCompressionMethodMode: public CBaseProps
   UInt64 DataSizeReduce;
 
   bool IsRealAesMode() const { return Password_Defined && IsAesMode; }
+
+  bool IsRealCtEnhancedMode() const { return Password_Defined && IsCtEnhancedMode; }
 
   CCompressionMethodMode()
   {

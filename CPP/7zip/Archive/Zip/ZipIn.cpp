@@ -1064,7 +1064,7 @@ bool CInArchive::ReadFileName(unsigned size, AString &s)
 #define ZIP64_IS_16_MAX(n) ((n) == 0xFFFF)
 
 
-bool CInArchive::ReadExtra(const CLocalItem &item, unsigned extraSize, CExtraBlock &extra,
+bool CInArchive::ReadExtra(CLocalItem &item, unsigned extraSize, CExtraBlock &extra,
     UInt64 &unpackSize, UInt64 &packSize,
     CItem *cdItem)
 {
@@ -1164,8 +1164,25 @@ bool CInArchive::ReadExtra(const CLocalItem &item, unsigned extraSize, CExtraBlo
         if (!subBlock.CheckIzUnicode(item.Name))
           extra.Error = true;
       }
+      if (subBlock.ID == NFileHeader::NExtraID::kCTEnhancedZip)
+      {
+          CCtEnhancedZipExtra e;
+          if (e.ParseFromSubBlock(subBlock)) {
+              if (!item.IsCtEnhancedLocal) {
+                  /* We're parsing a local header. */
+                  item.IsCtEnhancedLocal = true;
+                  item.CtPropsLocal = e.Props;
+              }
+              if (cdItem && !cdItem->IsCtEnhancedCentral) {
+                  /* We're parsing a central directory header. */                  
+                  cdItem->IsCtEnhancedCentral = true;                  
+                  cdItem->CtPropsLocal = e.Props;
+              }          
+          }
+      }
     }
   }
+    
 
   if (extraSize != 0)
   {
@@ -1224,6 +1241,7 @@ bool CInArchive::ReadLocalItem(CItemEx &item)
          So we ignore that error */
       // return false;
     }
+	
   }
   
   if (!CheckDosTime(item.Time))

@@ -539,15 +539,89 @@ Z7_COM7F_IMF(CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
         }
         else if (StringsAreEqualNoCase_Ascii(m, "ZipCrypto"))
         {
-          _props.IsAesMode = false;
-          m_ForceAesMode = true;
+            _props.IsAesMode = false;
+            _props.IsCtEnhancedMode = false;
+            m_ForceAesMode = true;
+        }
+        else if (StringsAreEqualNoCase_Ascii(m, "CTEnhanced") || StringsAreEqualNoCase_Ascii(m, "CT"))
+        {
+            _props.IsAesMode = false;
+            _props.IsCtEnhancedMode = true;
+            m_ForceAesMode = true;
         }
         else
-          return E_INVALIDARG;
+            return E_INVALIDARG;
       }
     }
-    
 
+    // CTEnhanced cipher algorithm: ec=AES256/Camellia256
+    else if (name.IsEqualTo_Ascii_NoCase("ec"))
+    {
+        if (prop.vt != VT_BSTR)
+            return E_INVALIDARG;
+        {
+            const wchar_t* m = prop.bstrVal;
+            if (StringsAreEqualNoCase_Ascii(m, "AES256") || StringsAreEqualNoCase_Ascii(m, "AES"))
+            {
+                _props.CtEnhancedProps.CipherAlgorithm = NCtCipherAlgorithm::kAES256;
+            }
+            else if (StringsAreEqualNoCase_Ascii(m, "Camellia256") || StringsAreEqualNoCase_Ascii(m, "Camellia"))
+            {
+                _props.CtEnhancedProps.CipherAlgorithm = NCtCipherAlgorithm::kCamellia256;
+            }
+            else
+                return E_INVALIDARG;
+        }
+    }
+
+    // CTEnhanced PRF/MAC algorithm: ekp=HMAC-SHA256/HMAC-SHA512
+    else if (name.IsEqualTo_Ascii_NoCase("ekp"))
+    {
+        if (prop.vt != VT_BSTR)
+            return E_INVALIDARG;
+        {
+            const wchar_t* m = prop.bstrVal;
+            if (StringsAreEqualNoCase_Ascii(m, "HMAC-SHA256") ||
+                StringsAreEqualNoCase_Ascii(m, "HMACSHA256") ||
+                StringsAreEqualNoCase_Ascii(m, "SHA256"))
+            {
+                _props.CtEnhancedProps.KdfPrf = NCtKdfPrf::kHMAC_SHA256;
+                _props.CtEnhancedProps.MacAlgorithm = NCtMacAlgorithm::kHMAC_SHA256;
+            }
+            else if (StringsAreEqualNoCase_Ascii(m, "HMAC-SHA512") ||
+                StringsAreEqualNoCase_Ascii(m, "HMACSHA512") ||
+                StringsAreEqualNoCase_Ascii(m, "SHA512"))
+            {
+                _props.CtEnhancedProps.KdfPrf = NCtKdfPrf::kHMAC_SHA512;
+                _props.CtEnhancedProps.MacAlgorithm = NCtMacAlgorithm::kHMAC_SHA512;
+            }
+            else
+                return E_INVALIDARG;
+        }
+    }
+
+    // CTEnhanced KDF iterations: eki=<number>
+    else if (name.IsEqualTo_Ascii_NoCase("eki"))
+    {
+        if (prop.vt == VT_UI4)
+        {
+            UInt32 iterations = prop.ulVal;
+            if (iterations > 0)
+                _props.CtEnhancedProps.KdfIterations = iterations;
+            else
+                return E_INVALIDARG;
+        }
+        else if (prop.vt == VT_BSTR)
+        {
+            const wchar_t* end;
+            UInt32 iterations = ConvertStringToUInt32(prop.bstrVal, &end);
+            if (*end != 0 || iterations == 0)
+                return E_INVALIDARG;
+            _props.CtEnhancedProps.KdfIterations = iterations;
+        }
+        else
+            return E_INVALIDARG;
+    }
    
     else if (name.IsEqualTo("cl"))
     {

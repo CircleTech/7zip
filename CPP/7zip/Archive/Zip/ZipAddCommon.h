@@ -13,6 +13,7 @@
 
 #include "../../Crypto/ZipCrypto.h"
 #include "../../Crypto/WzAes.h"
+#include "../../Crypto/CtCipherCoder.h"  
 
 #include "ZipCompressionMode.h"
 
@@ -49,6 +50,7 @@ class CAddCommon  MY_UNCOPYABLE
 
   NCrypto::NZip::CEncoder *_filterSpec;
   NCrypto::NWzAes::CEncoder *_filterAesSpec;
+  NCrypto::NCtCipherCoder::CEncoder* _filterCtEnhancedSpec;
 
   Byte *_buf;
   
