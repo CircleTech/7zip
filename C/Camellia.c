@@ -1,25 +1,25 @@
 /* camellia.h	ver 1.2.0
- *
- * Copyright (C) 2006,2007
- * NTT (Nippon Telegraph and Telephone Corporation).
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*
+* Copyright(C) 2006, 2007
+* NTT(Nippon Telegraph and Telephone Corporation).
+*
+*This library is free software; you can redistribute it and /or
+*modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+*This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110 - 1301  USA
+* /
 
 /*
- * Algorithm Specification 
+ * Algorithm Specification
  *  http://info.isl.ntt.co.jp/crypt/eng/camellia/specifications.html
  */
 
@@ -33,8 +33,8 @@
 #endif
 
 
-/* u32 must be 32bit word */
-typedef unsigned int u32;
+ /* u32 must be 32bit word */
+    typedef unsigned int u32;
 typedef unsigned char u8;
 
 /* key constants */
@@ -82,7 +82,7 @@ typedef unsigned char u8;
 #define CamelliaSubkeyL(INDEX) (subkey[(INDEX)*2])
 #define CamelliaSubkeyR(INDEX) (subkey[(INDEX)*2 + 1])
 
-/* rotation right shift 1byte */
+ /* rotation right shift 1byte */
 #define CAMELLIA_RR8(x) (((x) >> 8) + ((x) << 24))
 /* rotation left shift 1bit */
 #define CAMELLIA_RL1(x) (((x) << 1) + ((x) >> 31))
@@ -449,7 +449,7 @@ static const u32 camellia_sp4404[256] = {
 #define subl(x) subL[(x)]
 #define subr(x) subR[(x)]
 
-static void camellia_setup128(const unsigned char *key, u32 *subkey)
+static void camellia_setup128(const unsigned char* key, u32 * subkey)
 {
     u32 kll, klr, krl, krr;
     u32 il, ir, t0, t1, w0, w1;
@@ -460,9 +460,9 @@ static void camellia_setup128(const unsigned char *key, u32 *subkey)
     /**
      *  k == kll || klr || krl || krr (|| is concatination)
      */
-    kll = GETU32(key     );
-    klr = GETU32(key +  4);
-    krl = GETU32(key +  8);
+    kll = GETU32(key);
+    klr = GETU32(key + 4);
+    krl = GETU32(key + 8);
     krr = GETU32(key + 12);
     /**
      * generate KL dependent subkeys
@@ -491,19 +491,19 @@ static void camellia_setup128(const unsigned char *key, u32 *subkey)
     kll = subl(0); klr = subr(0);
     krl = subl(1); krr = subr(1);
     CAMELLIA_F(kll, klr,
-	       CAMELLIA_SIGMA1L, CAMELLIA_SIGMA1R,
-	       w0, w1, il, ir, t0, t1);
+        CAMELLIA_SIGMA1L, CAMELLIA_SIGMA1R,
+        w0, w1, il, ir, t0, t1);
     krl ^= w0; krr ^= w1;
     CAMELLIA_F(krl, krr,
-	       CAMELLIA_SIGMA2L, CAMELLIA_SIGMA2R,
-	       kll, klr, il, ir, t0, t1);
+        CAMELLIA_SIGMA2L, CAMELLIA_SIGMA2R,
+        kll, klr, il, ir, t0, t1);
     CAMELLIA_F(kll, klr,
-	       CAMELLIA_SIGMA3L, CAMELLIA_SIGMA3R,
-	       krl, krr, il, ir, t0, t1);
+        CAMELLIA_SIGMA3L, CAMELLIA_SIGMA3R,
+        krl, krr, il, ir, t0, t1);
     krl ^= w0; krr ^= w1;
     CAMELLIA_F(krl, krr,
-	       CAMELLIA_SIGMA4L, CAMELLIA_SIGMA4R,
-	       w0, w1, il, ir, t0, t1);
+        CAMELLIA_SIGMA4L, CAMELLIA_SIGMA4R,
+        w0, w1, il, ir, t0, t1);
     kll ^= w0; klr ^= w1;
 
     /* generate KA dependent subkeys */
@@ -595,7 +595,7 @@ static void camellia_setup128(const unsigned char *key, u32 *subkey)
     CamelliaSubkeyL(14) = subl(13) ^ subl(15);
     CamelliaSubkeyR(14) = subr(13) ^ subr(15);
     tl = subl(18) ^ (subr(18) & ~subr(16));
-    dw = tl & subl(16),	tr = subr(18) ^ CAMELLIA_RL1(dw);
+    dw = tl & subl(16), tr = subr(18) ^ CAMELLIA_RL1(dw);
     CamelliaSubkeyL(15) = subl(14) ^ tl;
     CamelliaSubkeyR(15) = subr(14) ^ tr;
     CamelliaSubkeyL(16) = subl(16);
@@ -603,7 +603,7 @@ static void camellia_setup128(const unsigned char *key, u32 *subkey)
     CamelliaSubkeyL(17) = subl(17);
     CamelliaSubkeyR(17) = subr(17);
     tl = subl(15) ^ (subr(15) & ~subr(17));
-    dw = tl & subl(17),	tr = subr(15) ^ CAMELLIA_RL1(dw);
+    dw = tl & subl(17), tr = subr(15) ^ CAMELLIA_RL1(dw);
     CamelliaSubkeyL(18) = tl ^ subl(19);
     CamelliaSubkeyR(18) = tr ^ subr(19);
     CamelliaSubkeyL(19) = subl(18) ^ subl(20);
@@ -660,10 +660,10 @@ static void camellia_setup128(const unsigned char *key, u32 *subkey)
     return;
 }
 
-static void camellia_setup256(const unsigned char *key, u32 *subkey)
+static void camellia_setup256(const unsigned char* key, u32 * subkey)
 {
-    u32 kll,klr,krl,krr;           /* left half of key */
-    u32 krll,krlr,krrl,krrr;       /* right half of key */
+    u32 kll, klr, krl, krr;           /* left half of key */
+    u32 krll, krlr, krrl, krrr;       /* right half of key */
     u32 il, ir, t0, t1, w0, w1;    /* temporary variables */
     u32 kw4l, kw4r, dw, tl, tr;
     u32 subL[34];
@@ -674,10 +674,10 @@ static void camellia_setup256(const unsigned char *key, u32 *subkey)
      *  (|| is concatination)
      */
 
-    kll  = GETU32(key     );
-    klr  = GETU32(key +  4);
-    krl  = GETU32(key +  8);
-    krr  = GETU32(key + 12);
+    kll = GETU32(key);
+    klr = GETU32(key + 4);
+    krl = GETU32(key + 8);
+    krr = GETU32(key + 12);
     krll = GETU32(key + 16);
     krlr = GETU32(key + 20);
     krrl = GETU32(key + 24);
@@ -718,32 +718,32 @@ static void camellia_setup256(const unsigned char *key, u32 *subkey)
     kll = subl(0) ^ krll; klr = subr(0) ^ krlr;
     krl = subl(1) ^ krrl; krr = subr(1) ^ krrr;
     CAMELLIA_F(kll, klr,
-	       CAMELLIA_SIGMA1L, CAMELLIA_SIGMA1R,
-	       w0, w1, il, ir, t0, t1);
+        CAMELLIA_SIGMA1L, CAMELLIA_SIGMA1R,
+        w0, w1, il, ir, t0, t1);
     krl ^= w0; krr ^= w1;
     CAMELLIA_F(krl, krr,
-	       CAMELLIA_SIGMA2L, CAMELLIA_SIGMA2R,
-	       kll, klr, il, ir, t0, t1);
+        CAMELLIA_SIGMA2L, CAMELLIA_SIGMA2R,
+        kll, klr, il, ir, t0, t1);
     kll ^= krll; klr ^= krlr;
     CAMELLIA_F(kll, klr,
-	       CAMELLIA_SIGMA3L, CAMELLIA_SIGMA3R,
-	       krl, krr, il, ir, t0, t1);
+        CAMELLIA_SIGMA3L, CAMELLIA_SIGMA3R,
+        krl, krr, il, ir, t0, t1);
     krl ^= w0 ^ krrl; krr ^= w1 ^ krrr;
     CAMELLIA_F(krl, krr,
-	       CAMELLIA_SIGMA4L, CAMELLIA_SIGMA4R,
-	       w0, w1, il, ir, t0, t1);
+        CAMELLIA_SIGMA4L, CAMELLIA_SIGMA4R,
+        w0, w1, il, ir, t0, t1);
     kll ^= w0; klr ^= w1;
 
     /* generate KB */
     krll ^= kll; krlr ^= klr;
     krrl ^= krl; krrr ^= krr;
     CAMELLIA_F(krll, krlr,
-	       CAMELLIA_SIGMA5L, CAMELLIA_SIGMA5R,
-	       w0, w1, il, ir, t0, t1);
+        CAMELLIA_SIGMA5L, CAMELLIA_SIGMA5R,
+        w0, w1, il, ir, t0, t1);
     krrl ^= w0; krrr ^= w1;
     CAMELLIA_F(krrl, krrr,
-	       CAMELLIA_SIGMA6L, CAMELLIA_SIGMA6R,
-	       w0, w1, il, ir, t0, t1);
+        CAMELLIA_SIGMA6L, CAMELLIA_SIGMA6R,
+        w0, w1, il, ir, t0, t1);
     krll ^= w0; krlr ^= w1;
 
     /* generate KA dependent subkeys */
@@ -876,7 +876,7 @@ static void camellia_setup256(const unsigned char *key, u32 *subkey)
     CamelliaSubkeyR(24) = subr(24);
     CamelliaSubkeyL(25) = subl(25);
     CamelliaSubkeyR(25) = subr(25);
-    tl = subl(23) ^ (subr(23) &  ~subr(25));
+    tl = subl(23) ^ (subr(23) & ~subr(25));
     dw = tl & subl(25), tr = subr(23) ^ CAMELLIA_RL1(dw);
     CamelliaSubkeyL(26) = tl ^ subl(27);
     CamelliaSubkeyR(26) = tr ^ subr(27);
@@ -941,23 +941,23 @@ static void camellia_setup256(const unsigned char *key, u32 *subkey)
     dw = CamelliaSubkeyL(30) ^ CamelliaSubkeyR(30), dw = CAMELLIA_RL8(dw);
     CamelliaSubkeyR(30) = CamelliaSubkeyL(30) ^ dw, CamelliaSubkeyL(30) = dw;
     dw = CamelliaSubkeyL(31) ^ CamelliaSubkeyR(31), dw = CAMELLIA_RL8(dw);
-    CamelliaSubkeyR(31) = CamelliaSubkeyL(31) ^ dw,CamelliaSubkeyL(31) = dw;
-    
+    CamelliaSubkeyR(31) = CamelliaSubkeyL(31) ^ dw, CamelliaSubkeyL(31) = dw;
+
     return;
 }
 
-static void camellia_setup192(const unsigned char *key, u32 *subkey)
+static void camellia_setup192(const unsigned char* key, u32 * subkey)
 {
     unsigned char kk[32];
-    u32 krll, krlr, krrl,krrr;
+    u32 krll, krlr, krrl, krrr;
 
     memcpy(kk, key, 24);
-    memcpy((unsigned char *)&krll, key+16,4);
-    memcpy((unsigned char *)&krlr, key+20,4);
+    memcpy((unsigned char*)&krll, key + 16, 4);
+    memcpy((unsigned char*)&krlr, key + 20, 4);
     krrl = ~krll;
     krrr = ~krlr;
-    memcpy(kk+24, (unsigned char *)&krrl, 4);
-    memcpy(kk+28, (unsigned char *)&krrr, 4);
+    memcpy(kk + 24, (unsigned char*)&krrl, 4);
+    memcpy(kk + 28, (unsigned char*)&krrr, 4);
     camellia_setup256(kk, subkey);
     return;
 }
@@ -968,7 +968,7 @@ static void camellia_setup192(const unsigned char *key, u32 *subkey)
  *
  * "io" must be 4byte aligned and big-endian data.
  */
-static void camellia_encrypt128(const u32 *subkey, u32 *io)
+static void camellia_encrypt128(const u32 * subkey, u32 * io)
 {
     u32 il, ir, t0, t1;
 
@@ -977,72 +977,72 @@ static void camellia_encrypt128(const u32 *subkey, u32 *io)
     io[1] ^= CamelliaSubkeyR(0);
     /* main iteration */
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(2),CamelliaSubkeyR(2),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(3),CamelliaSubkeyR(3),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(4),CamelliaSubkeyR(4),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(5),CamelliaSubkeyR(5),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(6),CamelliaSubkeyR(6),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(7),CamelliaSubkeyR(7),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(2), CamelliaSubkeyR(2),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(3), CamelliaSubkeyR(3),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(4), CamelliaSubkeyR(4),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(5), CamelliaSubkeyR(5),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(6), CamelliaSubkeyR(6),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(7), CamelliaSubkeyR(7),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(8),CamelliaSubkeyR(8),
-		 CamelliaSubkeyL(9),CamelliaSubkeyR(9),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(8), CamelliaSubkeyR(8),
+        CamelliaSubkeyL(9), CamelliaSubkeyR(9),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(10),CamelliaSubkeyR(10),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(11),CamelliaSubkeyR(11),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(12),CamelliaSubkeyR(12),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(13),CamelliaSubkeyR(13),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(14),CamelliaSubkeyR(14),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(15),CamelliaSubkeyR(15),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(10), CamelliaSubkeyR(10),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(11), CamelliaSubkeyR(11),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(12), CamelliaSubkeyR(12),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(13), CamelliaSubkeyR(13),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(14), CamelliaSubkeyR(14),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(15), CamelliaSubkeyR(15),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(16),CamelliaSubkeyR(16),
-		 CamelliaSubkeyL(17),CamelliaSubkeyR(17),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(16), CamelliaSubkeyR(16),
+        CamelliaSubkeyL(17), CamelliaSubkeyR(17),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(18),CamelliaSubkeyR(18),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(19),CamelliaSubkeyR(19),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(20),CamelliaSubkeyR(20),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(21),CamelliaSubkeyR(21),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(22),CamelliaSubkeyR(22),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(23),CamelliaSubkeyR(23),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(18), CamelliaSubkeyR(18),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(19), CamelliaSubkeyR(19),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(20), CamelliaSubkeyR(20),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(21), CamelliaSubkeyR(21),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(22), CamelliaSubkeyR(22),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(23), CamelliaSubkeyR(23),
+        io[0], io[1], il, ir, t0, t1);
 
     /* post whitening but kw4 */
     io[2] ^= CamelliaSubkeyL(24);
@@ -1054,85 +1054,85 @@ static void camellia_encrypt128(const u32 *subkey, u32 *io)
     io[1] = io[3];
     io[2] = t0;
     io[3] = t1;
-	
+
     return;
 }
 
-static void camellia_decrypt128(const u32 *subkey, u32 *io)
+static void camellia_decrypt128(const u32 * subkey, u32 * io)
 {
-    u32 il,ir,t0,t1;               /* temporary valiables */
-    
+    u32 il, ir, t0, t1;               /* temporary valiables */
+
     /* pre whitening but absorb kw2*/
     io[0] ^= CamelliaSubkeyL(24);
     io[1] ^= CamelliaSubkeyR(24);
 
     /* main iteration */
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(23),CamelliaSubkeyR(23),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(22),CamelliaSubkeyR(22),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(21),CamelliaSubkeyR(21),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(20),CamelliaSubkeyR(20),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(19),CamelliaSubkeyR(19),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(18),CamelliaSubkeyR(18),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(23), CamelliaSubkeyR(23),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(22), CamelliaSubkeyR(22),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(21), CamelliaSubkeyR(21),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(20), CamelliaSubkeyR(20),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(19), CamelliaSubkeyR(19),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(18), CamelliaSubkeyR(18),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(17),CamelliaSubkeyR(17),
-		 CamelliaSubkeyL(16),CamelliaSubkeyR(16),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(17), CamelliaSubkeyR(17),
+        CamelliaSubkeyL(16), CamelliaSubkeyR(16),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(15),CamelliaSubkeyR(15),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(14),CamelliaSubkeyR(14),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(13),CamelliaSubkeyR(13),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(12),CamelliaSubkeyR(12),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(11),CamelliaSubkeyR(11),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(10),CamelliaSubkeyR(10),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(15), CamelliaSubkeyR(15),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(14), CamelliaSubkeyR(14),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(13), CamelliaSubkeyR(13),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(12), CamelliaSubkeyR(12),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(11), CamelliaSubkeyR(11),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(10), CamelliaSubkeyR(10),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(9),CamelliaSubkeyR(9),
-		 CamelliaSubkeyL(8),CamelliaSubkeyR(8),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(9), CamelliaSubkeyR(9),
+        CamelliaSubkeyL(8), CamelliaSubkeyR(8),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(7),CamelliaSubkeyR(7),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(6),CamelliaSubkeyR(6),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(5),CamelliaSubkeyR(5),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(4),CamelliaSubkeyR(4),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(3),CamelliaSubkeyR(3),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(2),CamelliaSubkeyR(2),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(7), CamelliaSubkeyR(7),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(6), CamelliaSubkeyR(6),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(5), CamelliaSubkeyR(5),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(4), CamelliaSubkeyR(4),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(3), CamelliaSubkeyR(3),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(2), CamelliaSubkeyR(2),
+        io[0], io[1], il, ir, t0, t1);
 
     /* post whitening but kw4 */
     io[2] ^= CamelliaSubkeyL(0);
@@ -1151,105 +1151,105 @@ static void camellia_decrypt128(const u32 *subkey, u32 *io)
 /**
  * stuff for 192 and 256bit encryption/decryption
  */
-static void camellia_encrypt256(const u32 *subkey, u32 *io)
+static void camellia_encrypt256(const u32 * subkey, u32 * io)
 {
-    u32 il,ir,t0,t1;           /* temporary valiables */
+    u32 il, ir, t0, t1;           /* temporary valiables */
 
     /* pre whitening but absorb kw2*/
     io[0] ^= CamelliaSubkeyL(0);
     io[1] ^= CamelliaSubkeyR(0);
 
     /* main iteration */
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(2),CamelliaSubkeyR(2),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(3),CamelliaSubkeyR(3),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(4),CamelliaSubkeyR(4),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(5),CamelliaSubkeyR(5),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(6),CamelliaSubkeyR(6),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(7),CamelliaSubkeyR(7),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(2), CamelliaSubkeyR(2),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(3), CamelliaSubkeyR(3),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(4), CamelliaSubkeyR(4),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(5), CamelliaSubkeyR(5),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(6), CamelliaSubkeyR(6),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(7), CamelliaSubkeyR(7),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(8),CamelliaSubkeyR(8),
-		 CamelliaSubkeyL(9),CamelliaSubkeyR(9),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(8), CamelliaSubkeyR(8),
+        CamelliaSubkeyL(9), CamelliaSubkeyR(9),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(10),CamelliaSubkeyR(10),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(11),CamelliaSubkeyR(11),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(12),CamelliaSubkeyR(12),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(13),CamelliaSubkeyR(13),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(14),CamelliaSubkeyR(14),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(15),CamelliaSubkeyR(15),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(10), CamelliaSubkeyR(10),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(11), CamelliaSubkeyR(11),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(12), CamelliaSubkeyR(12),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(13), CamelliaSubkeyR(13),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(14), CamelliaSubkeyR(14),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(15), CamelliaSubkeyR(15),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(16),CamelliaSubkeyR(16),
-		 CamelliaSubkeyL(17),CamelliaSubkeyR(17),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(16), CamelliaSubkeyR(16),
+        CamelliaSubkeyL(17), CamelliaSubkeyR(17),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(18),CamelliaSubkeyR(18),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(19),CamelliaSubkeyR(19),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(20),CamelliaSubkeyR(20),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(21),CamelliaSubkeyR(21),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(22),CamelliaSubkeyR(22),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(23),CamelliaSubkeyR(23),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(18), CamelliaSubkeyR(18),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(19), CamelliaSubkeyR(19),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(20), CamelliaSubkeyR(20),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(21), CamelliaSubkeyR(21),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(22), CamelliaSubkeyR(22),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(23), CamelliaSubkeyR(23),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(24),CamelliaSubkeyR(24),
-		 CamelliaSubkeyL(25),CamelliaSubkeyR(25),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(24), CamelliaSubkeyR(24),
+        CamelliaSubkeyL(25), CamelliaSubkeyR(25),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(26),CamelliaSubkeyR(26),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(27),CamelliaSubkeyR(27),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(28),CamelliaSubkeyR(28),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(29),CamelliaSubkeyR(29),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(30),CamelliaSubkeyR(30),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(31),CamelliaSubkeyR(31),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(26), CamelliaSubkeyR(26),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(27), CamelliaSubkeyR(27),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(28), CamelliaSubkeyR(28),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(29), CamelliaSubkeyR(29),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(30), CamelliaSubkeyR(30),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(31), CamelliaSubkeyR(31),
+        io[0], io[1], il, ir, t0, t1);
 
     /* post whitening but kw4 */
     io[2] ^= CamelliaSubkeyL(32);
@@ -1265,105 +1265,105 @@ static void camellia_encrypt256(const u32 *subkey, u32 *io)
     return;
 }
 
-static void camellia_decrypt256(const u32 *subkey, u32 *io)
+static void camellia_decrypt256(const u32 * subkey, u32 * io)
 {
-    u32 il,ir,t0,t1;           /* temporary valiables */
+    u32 il, ir, t0, t1;           /* temporary valiables */
 
     /* pre whitening but absorb kw2*/
     io[0] ^= CamelliaSubkeyL(32);
     io[1] ^= CamelliaSubkeyR(32);
-	
+
     /* main iteration */
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(31),CamelliaSubkeyR(31),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(30),CamelliaSubkeyR(30),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(29),CamelliaSubkeyR(29),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(28),CamelliaSubkeyR(28),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(27),CamelliaSubkeyR(27),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(26),CamelliaSubkeyR(26),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(31), CamelliaSubkeyR(31),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(30), CamelliaSubkeyR(30),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(29), CamelliaSubkeyR(29),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(28), CamelliaSubkeyR(28),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(27), CamelliaSubkeyR(27),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(26), CamelliaSubkeyR(26),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(25),CamelliaSubkeyR(25),
-		 CamelliaSubkeyL(24),CamelliaSubkeyR(24),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(25), CamelliaSubkeyR(25),
+        CamelliaSubkeyL(24), CamelliaSubkeyR(24),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(23),CamelliaSubkeyR(23),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(22),CamelliaSubkeyR(22),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(21),CamelliaSubkeyR(21),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(20),CamelliaSubkeyR(20),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(19),CamelliaSubkeyR(19),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(18),CamelliaSubkeyR(18),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(23), CamelliaSubkeyR(23),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(22), CamelliaSubkeyR(22),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(21), CamelliaSubkeyR(21),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(20), CamelliaSubkeyR(20),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(19), CamelliaSubkeyR(19),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(18), CamelliaSubkeyR(18),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(17),CamelliaSubkeyR(17),
-		 CamelliaSubkeyL(16),CamelliaSubkeyR(16),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(17), CamelliaSubkeyR(17),
+        CamelliaSubkeyL(16), CamelliaSubkeyR(16),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(15),CamelliaSubkeyR(15),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(14),CamelliaSubkeyR(14),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(13),CamelliaSubkeyR(13),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(12),CamelliaSubkeyR(12),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(11),CamelliaSubkeyR(11),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(10),CamelliaSubkeyR(10),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(15), CamelliaSubkeyR(15),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(14), CamelliaSubkeyR(14),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(13), CamelliaSubkeyR(13),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(12), CamelliaSubkeyR(12),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(11), CamelliaSubkeyR(11),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(10), CamelliaSubkeyR(10),
+        io[0], io[1], il, ir, t0, t1);
 
-    CAMELLIA_FLS(io[0],io[1],io[2],io[3],
-		 CamelliaSubkeyL(9),CamelliaSubkeyR(9),
-		 CamelliaSubkeyL(8),CamelliaSubkeyR(8),
-		 t0,t1,il,ir);
+    CAMELLIA_FLS(io[0], io[1], io[2], io[3],
+        CamelliaSubkeyL(9), CamelliaSubkeyR(9),
+        CamelliaSubkeyL(8), CamelliaSubkeyR(8),
+        t0, t1, il, ir);
 
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(7),CamelliaSubkeyR(7),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(6),CamelliaSubkeyR(6),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(5),CamelliaSubkeyR(5),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(4),CamelliaSubkeyR(4),
-		     io[0],io[1],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[0],io[1],
-		     CamelliaSubkeyL(3),CamelliaSubkeyR(3),
-		     io[2],io[3],il,ir,t0,t1);
-    CAMELLIA_ROUNDSM(io[2],io[3],
-		     CamelliaSubkeyL(2),CamelliaSubkeyR(2),
-		     io[0],io[1],il,ir,t0,t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(7), CamelliaSubkeyR(7),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(6), CamelliaSubkeyR(6),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(5), CamelliaSubkeyR(5),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(4), CamelliaSubkeyR(4),
+        io[0], io[1], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[0], io[1],
+        CamelliaSubkeyL(3), CamelliaSubkeyR(3),
+        io[2], io[3], il, ir, t0, t1);
+    CAMELLIA_ROUNDSM(io[2], io[3],
+        CamelliaSubkeyL(2), CamelliaSubkeyR(2),
+        io[0], io[1], il, ir, t0, t1);
 
     /* post whitening but kw4 */
     io[2] ^= CamelliaSubkeyL(0);
@@ -1384,30 +1384,30 @@ static void camellia_decrypt256(const u32 *subkey, u32 *io)
  * API for compatibility
  */
 
-void Camellia_Ekeygen(const int keyBitLength, 
-		      const unsigned char *rawKey, 
-		      KEY_TABLE_TYPE keyTable)
+void Camellia_Ekeygen(const int keyBitLength,
+    const unsigned char* rawKey,
+    KEY_TABLE_TYPE keyTable)
 {
-    switch(keyBitLength) {
+    switch (keyBitLength) {
     case 128:
-	camellia_setup128(rawKey, keyTable);
-	break;
+        camellia_setup128(rawKey, keyTable);
+        break;
     case 192:
-	camellia_setup192(rawKey, keyTable);
-	break;
+        camellia_setup192(rawKey, keyTable);
+        break;
     case 256:
-	camellia_setup256(rawKey, keyTable);
-	break;
+        camellia_setup256(rawKey, keyTable);
+        break;
     default:
-	break;
+        break;
     }
 }
 
 
-void Camellia_EncryptBlock(const int keyBitLength, 
-			   const unsigned char *plaintext, 
-			   const KEY_TABLE_TYPE keyTable, 
-			   unsigned char *ciphertext)
+void Camellia_EncryptBlock(const int keyBitLength,
+    const unsigned char* plaintext,
+    const KEY_TABLE_TYPE keyTable,
+    unsigned char* ciphertext)
 {
     u32 tmp[4];
 
@@ -1418,27 +1418,27 @@ void Camellia_EncryptBlock(const int keyBitLength,
 
     switch (keyBitLength) {
     case 128:
-	camellia_encrypt128(keyTable, tmp);
-	break;
+        camellia_encrypt128(keyTable, tmp);
+        break;
     case 192:
-	/* fall through */
+        /* fall through */
     case 256:
-	camellia_encrypt256(keyTable, tmp);
-	break;
+        camellia_encrypt256(keyTable, tmp);
+        break;
     default:
-	break;
+        break;
     }
 
     PUTU32(ciphertext, tmp[0])
-    PUTU32(ciphertext + 4, tmp[1])
-    PUTU32(ciphertext + 8, tmp[2])
-    PUTU32(ciphertext + 12, tmp[3])
+        PUTU32(ciphertext + 4, tmp[1])
+        PUTU32(ciphertext + 8, tmp[2])
+        PUTU32(ciphertext + 12, tmp[3])
 }
 
-void Camellia_DecryptBlock(const int keyBitLength, 
-			   const unsigned char *ciphertext, 
-			   const KEY_TABLE_TYPE keyTable, 
-			   unsigned char *plaintext)
+void Camellia_DecryptBlock(const int keyBitLength,
+    const unsigned char* ciphertext,
+    const KEY_TABLE_TYPE keyTable,
+    unsigned char* plaintext)
 {
     u32 tmp[4];
 
@@ -1449,20 +1449,20 @@ void Camellia_DecryptBlock(const int keyBitLength,
 
     switch (keyBitLength) {
     case 128:
-	camellia_decrypt128(keyTable, tmp);
-	break;
+        camellia_decrypt128(keyTable, tmp);
+        break;
     case 192:
-	/* fall through */
+        /* fall through */
     case 256:
-	camellia_decrypt256(keyTable, tmp);
-	break;
+        camellia_decrypt256(keyTable, tmp);
+        break;
     default:
-	break;
+        break;
     }
     PUTU32(plaintext, tmp[0])
-    PUTU32(plaintext + 4, tmp[1])
-    PUTU32(plaintext + 8, tmp[2])
-    PUTU32(plaintext + 12, tmp[3])
+        PUTU32(plaintext + 4, tmp[1])
+        PUTU32(plaintext + 8, tmp[2])
+        PUTU32(plaintext + 12, tmp[3])
 }
 
 /* ========================================
@@ -1489,28 +1489,28 @@ void Camellia_CtrCode(unsigned int* p, unsigned char* data, size_t numBlocks)
         unsigned char encryptedCounter[CAMELLIA_BLOCK_SIZE];
         unsigned i;
 
-        /* Increment 64-bit counter (little-endian, p[0] is low word) */
+        /* Increment 128-bit counter (big-endian interpretation: p[3] is LSW, p[0] is MSW) */
         if (++p[0] == 0)
-            p[1]++;
+            if (++p[1] == 0)
+                if (++p[2] == 0)
+                    ++p[3];
 
-        /* Convert counter from little-endian u32 array to big-endian byte array
+        /* Convert current counter value to big-endian byte array
          * Camellia uses big-endian byte order internally */
-        PUTU32(counterBlock, p[0])
-        PUTU32(counterBlock + 4, p[1])
-        PUTU32(counterBlock + 8, p[2])
-        PUTU32(counterBlock + 12, p[3])
+        memcpy(counterBlock, p, CAMELLIA_BLOCK_SIZE);
 
-        /* Encrypt the counter block */
-        Camellia_EncryptBlock(256,  /* keyBitLength - use 256 for CTEnhanced */
-            counterBlock,
-            *keyTable,
-            encryptedCounter);
+            /* Encrypt the counter block */
+            Camellia_EncryptBlock(256,  /* keyBitLength - use 256 for CTEnhanced */
+                counterBlock,
+                *keyTable,
+                encryptedCounter);
 
         /* XOR encrypted counter with data */
         for (i = 0; i < CAMELLIA_BLOCK_SIZE; i++)
         {
             data[i] ^= encryptedCounter[i];
         }
+
 
         data += CAMELLIA_BLOCK_SIZE;
     }

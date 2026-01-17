@@ -23,7 +23,16 @@ This code implements CircleTech Enhanced ZIP (CTEnhanced) encryption format.
 namespace NCrypto {
     namespace NCtCipherCoder {
 
-        /* Helper class for Camellia CTR mode coder */
+        /* Helper class for Camellia CTR mode coder
+         *
+         * This implementation mirrors CAesCtrCoder from MyAes.cpp to properly
+         * handle partial blocks at both the beginning and end of data streams.
+         *
+         * The Camellia CTR state layout (from Camellia.h):
+         *   [0-3]:   counter (4 x UInt32 = 16 bytes)
+         *   [4-71]:  keyTable (68 x UInt32 = 272 bytes)
+         *   Total:   72 x UInt32 = 288 bytes = CAMELLIA_CTR_STATE_SIZE
+         */
         class CCamelliaCtrCoder :
             public ICompressFilter,
             public CMyUnknownImp
@@ -31,21 +40,31 @@ namespace NCrypto {
             Z7_COM_UNKNOWN_IMP_0
 
                 CAlignedBuffer _camellia;
+            // Extra buffer to store partial keystream block for handling 
+            // data sizes not aligned to CAMELLIA_BLOCK_SIZE
+            Byte _keystreamBuf[CAMELLIA_BLOCK_SIZE];
+
             UInt32* CamelliaState() { return (UInt32*)(Byte*)_camellia; }
             unsigned _keySize;
+            unsigned _ctrPos;  // Position within partial keystream block (0-15)
+            bool _keyIsSet;
 
         public:
             Z7_COM7F_IMP(Init())
                 Z7_COM7F_IMP2(UInt32, Filter(Byte* data, UInt32 size))
 
                 CCamelliaCtrCoder(unsigned keySize) :
-                _keySize(keySize)
+                _keySize(keySize),
+                _ctrPos(0),
+                _keyIsSet(false)
             {
                 _camellia.Alloc(CAMELLIA_CTR_STATE_SIZE);
+                memset(_keystreamBuf, 0, CAMELLIA_BLOCK_SIZE);
             }
 
             virtual ~CCamelliaCtrCoder() {
-
+                // Wipe sensitive keystream buffer
+                memset(_keystreamBuf, 0, CAMELLIA_BLOCK_SIZE);
             }
 
             HRESULT SetKey(const Byte* data, UInt32 size)
@@ -53,34 +72,85 @@ namespace NCrypto {
                 if (size != _keySize)
                     return E_INVALIDARG;
 
-                // Initialize counter to zero (IV will be set later if needed)
-                Byte iv[16];
-                memset(iv, 0, 16);
+                // Initialize counter to zero
+                Byte iv[CAMELLIA_BLOCK_SIZE];
+                memset(iv, 0, CAMELLIA_BLOCK_SIZE);
 
                 Camellia_CtrInit(CamelliaState(), data, 256, iv);
+                _ctrPos = 0;
+                _keyIsSet = true;
+                memset(_keystreamBuf, 0, CAMELLIA_BLOCK_SIZE);
                 return S_OK;
             }
         };
 
         Z7_COM7F_IMF(CCamelliaCtrCoder::Init())
         {
-            // Counter is initialized in SetKey with IV
-            return S_OK;
+            _ctrPos = 0;
+            memset(_keystreamBuf, 0, CAMELLIA_BLOCK_SIZE);
+            return _keyIsSet ? S_OK : E_NOTIMPL;
         }
 
         Z7_COM7F_IMF2(UInt32, CCamelliaCtrCoder::Filter(Byte* data, UInt32 size))
         {
+            if (!_keyIsSet)
+                return 0;
             if (size == 0)
                 return 0;
 
-            // Round down to block size
-            UInt32 numBlocks = size / CAMELLIA_BLOCK_SIZE;
-            if (numBlocks > 0)
+            UInt32 processed = 0;
+
+            // Handle leftover keystream from previous partial block
+            if (_ctrPos != 0)
             {
-                Camellia_CtrCode(CamelliaState(), data, numBlocks);
+                // We have unused keystream bytes in _keystreamBuf starting at _ctrPos
+                while (_ctrPos < CAMELLIA_BLOCK_SIZE && processed < size)
+                {
+                    data[processed] ^= _keystreamBuf[_ctrPos];
+                    _ctrPos++;
+                    processed++;
+                }
+
+                if (_ctrPos == CAMELLIA_BLOCK_SIZE)
+                    _ctrPos = 0;
+
+                if (processed == size)
+                    return processed;
+
+                // Move data pointer forward for remaining processing
+                data += processed;
+                size -= processed;
             }
 
-            return numBlocks * CAMELLIA_BLOCK_SIZE;
+            // Process full blocks
+            UInt32 numFullBlocks = size / CAMELLIA_BLOCK_SIZE;
+            if (numFullBlocks > 0)
+            {
+                Camellia_CtrCode(CamelliaState(), data, numFullBlocks);
+                UInt32 fullBlockBytes = numFullBlocks * CAMELLIA_BLOCK_SIZE;
+                processed += fullBlockBytes;
+                data += fullBlockBytes;
+                size -= fullBlockBytes;
+            }
+
+            // Handle final partial block
+            if (size > 0)
+            {
+                // Generate one block of keystream
+                memset(_keystreamBuf, 0, CAMELLIA_BLOCK_SIZE);
+                Camellia_CtrCode(CamelliaState(), _keystreamBuf, 1);
+
+                // XOR partial data with keystream
+                for (UInt32 i = 0; i < size; i++)
+                {
+                    data[i] ^= _keystreamBuf[i];
+                }
+
+                _ctrPos = size;  // Remember where we stopped in the keystream
+                processed += size;
+            }
+
+            return processed;
         }
 
         /* CBaseCoder implementation */
@@ -189,7 +259,7 @@ namespace NCrypto {
 
             // Generate random salt
             MY_RAND_GEN(_key.Salt, saltSize);
-
+            
             // Initialize crypto with salt
             Init2();
 
@@ -295,26 +365,21 @@ namespace NCrypto {
 
         Z7_COM7F_IMF2(UInt32, CDecoder::Filter(Byte* data, UInt32 size))
         {
-            // Round down to block size for MAC calculation
-            if (size >= 16)
-                size &= ~(UInt32)15;
+            if (size == 0)
+                return 0;
 
             // Update HMAC with encrypted data before decryption
-            if (_hmacOverCalc < size)
-            {
-                if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)
-                    Hmac512()->Update(data + _hmacOverCalc, size - _hmacOverCalc);
-                else
-                    Hmac256()->Update(data + _hmacOverCalc, size - _hmacOverCalc);
+            // The HMAC must be computed over the ciphertext, so we update it
+            // before decrypting the data.
+            if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)
+                Hmac512()->Update(data, size);
+            else
+                Hmac256()->Update(data, size);
 
-                _hmacOverCalc = size;
-            }
+            // Decrypt data - the cipher now handles partial blocks correctly
+            UInt32 decrypted = _cipherCoder->Filter(data, size);
 
-            // Decrypt data
-            size = _cipherCoder->Filter(data, size);
-            _hmacOverCalc -= size;
-
-            return size;
+            return decrypted;
         }
 
     }
