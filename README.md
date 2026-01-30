@@ -36,11 +36,11 @@ Standard header entries, including previous Extra Fields (such as Zip64 Extra Fi
     (16 bytes)      Cipher Salt, length equal to block size of the cipher, so as of now always 16 bytes
     0xFFFF          Legacy Field (in WinZip-AES, that would be used for fast checking of the password), always 0xFFFF
     PAYLOAD         The actual encrypted payload
-    (MAC Code)      The full MAC code of the plaintext, length determined by the Auth Code alg (32 bytes for HMAC-SHA-256, 64 bytes for HMAC-SHA-512)
+    (MAC Code)      The full MAC code of the encrypted payload. 32 bytes for HMAC-SHA-256, 64 bytes for HMAC-SHA-512.
 
-Note that CRC is not used at all. Instead, to check integrity of the payload, MAC is used, which is much stronger.
+Note that CRC is not used at all. Instead, to check integrity of the payload, MAC is used, which is cryptographically much stronger.
 
-Unlike in WinZip-AES, MAC isn't truncated and its full length is written into the file. 
+Unlike in WinZip-AES, the MAC isn't truncated and its full length is written into the file. 
 
 Any compatible implementation of CTEnhancedZip MUST support AES-256, Camellia-256, PBKDF2, HMAC-SHA-256, HMAC-SHA-512. As of now, the PRF for KDF and Auth Code SHOULD be identical. 
 
