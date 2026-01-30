@@ -142,7 +142,8 @@ namespace NArchive
         kDataAfterEnd,
         kIsNotArc,
         kHeadersError,
-        kWrongPassword
+        kWrongPassword,
+        kHMACError
         // , kMemError
       };
     }

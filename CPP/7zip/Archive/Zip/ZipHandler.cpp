@@ -1617,7 +1617,7 @@ HRESULT CZipDecoder::Decode(
         }
     }
 
-    res = NExtract::NOperationResult::kCRCError;
+    res = (ctEnhancedMode ? NExtract::NOperationResult::kHMACError : NExtract::NOperationResult::kCRCError);
 
     if (crcOK && authOk)
     {

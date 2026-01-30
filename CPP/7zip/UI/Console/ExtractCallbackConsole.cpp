@@ -211,6 +211,7 @@ static const char * const kNoFiles = "No files to process";
 static const char * const kUnsupportedMethod = "Unsupported Method";
 static const char * const kCrcFailed = "CRC Failed";
 static const char * const kCrcFailedEncrypted = "CRC Failed in encrypted file. Wrong password?";
+static const char * const kHMACFailedEncrypted = "HMAC Check Failed in encrypted file. Wrong password?";
 static const char * const kDataError = "Data Error";
 static const char * const kDataErrorEncrypted = "Data Error in encrypted file. Wrong password?";
 static const char * const kUnavailableData = "Unavailable data";
@@ -427,6 +428,9 @@ void SetExtractErrorMessage(Int32 opRes, Int32 encrypted, AString &dest)
         break;
       case NArchive::NExtract::NOperationResult::kCRCError:
         s = (encrypted ? kCrcFailedEncrypted : kCrcFailed);
+        break;
+      case NArchive::NExtract::NOperationResult::kHMACError:
+        s = (encrypted ? kHMACFailedEncrypted : kCrcFailed);
         break;
       case NArchive::NExtract::NOperationResult::kDataError:
         s = (encrypted ? kDataErrorEncrypted : kDataError);

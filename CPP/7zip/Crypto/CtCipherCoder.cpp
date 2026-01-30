@@ -339,11 +339,13 @@ namespace NCrypto {
             // Read MAC from archive
             MY_ALIGN(16)
                 Byte mac1[64];  // Use largest size (SHA-512)
+            memset(mac1, 0, 64);
             RINOK(ReadStream_FAIL(inStream, mac1, macSize))
 
                 // Compute MAC
                 MY_ALIGN(16)
                 Byte mac2[64];  // Use largest size (SHA-512)
+            memset(mac2, 0, 64);
 
             if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)
             {
@@ -368,16 +370,33 @@ namespace NCrypto {
             if (size == 0)
                 return 0;
 
+            UInt32 closestMultipleOf16 = (size / 16) * 16;
+            UInt32 decrypted = 0;
+
             // Update HMAC with encrypted data before decryption
             // The HMAC must be computed over the ciphertext, so we update it
             // before decrypting the data.
             if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)
-                Hmac512()->Update(data, size);
+                Hmac512()->Update(data, closestMultipleOf16);
             else
-                Hmac256()->Update(data, size);
+                Hmac256()->Update(data, closestMultipleOf16);
 
-            // Decrypt data - the cipher now handles partial blocks correctly
-            UInt32 decrypted = _cipherCoder->Filter(data, size);
+            
+            decrypted = _cipherCoder->Filter(data, closestMultipleOf16);
+
+            // CAesCipherCoder from MyAes.cpp (from original 7z) isn't very reliable when processing non-16-bytes aligned data, UNLESS the block is shorter than 16 bytes. Hence the division of the block into two sub-blocks, 
+            // where the starting block is a multiple of 16 and the final block is smaller than 16 bytes.
+            // On the other hand, CCamelliaCtrCoder, developed by CircleTech, does not need such shenanigans, but isn't hurt by them either.
+            if (size > closestMultipleOf16) {
+                UInt32 remaining = size - closestMultipleOf16;
+                Byte* dataPtr = data + closestMultipleOf16;
+                if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)
+                    Hmac512()->Update(dataPtr, remaining);
+                else
+                    Hmac256()->Update(dataPtr, remaining);
+                
+                decrypted += _cipherCoder->Filter(dataPtr, remaining);
+            }
 
             return decrypted;
         }
