@@ -202,7 +202,9 @@ HRESULT CAddCommon::Compress(
   }
 
   CMyComPtr2_Create<ISequentialInStream, CSequentialInStreamWithCRC> inCrcStream;
-  
+  if (_options.IsCtEnhancedMode) {
+      inCrcStream->SetSkipCrc(true);
+  }
   CMyComPtr<IInStream> inStream2;
   if (!inSeqMode)
   {

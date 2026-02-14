@@ -19,14 +19,17 @@ Z7_CLASS_IMP_NOQIB_2(
   UInt32 _crc;
   bool _wasFinished;
   UInt64 _fullSize;
+  bool _skipCrc;
 public:
   
   CSequentialInStreamWithCRC():
-    _fullSize((UInt64)(Int64)-1)
+    _fullSize((UInt64)(Int64)-1),
+    _skipCrc(false)
     {}
 
   void SetStream(ISequentialInStream *stream) { _stream = stream; }
   void SetFullSize(UInt64 fullSize) { _fullSize = fullSize; }
+  void SetSkipCrc(bool skip) { _skipCrc = skip; }
   void Init()
   {
     _size = 0;

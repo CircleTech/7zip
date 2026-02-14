@@ -1228,7 +1228,7 @@ static HRESULT Update2(
 
     if (numThreads > numZipThreads_limit)
       numThreads = numZipThreads_limit;
-    if (numThreads <= 1)
+    if ((numThreads <= 1) || options.IsRealCtEnhancedMode())
     {
       mtMode = false;
       numThreads = 1;
