@@ -622,6 +622,13 @@ Z7_COM7F_IMF(CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
         else
             return E_INVALIDARG;
     }
+
+    else if (name.IsEqualTo_Ascii_NoCase("qxh"))
+    {
+        if (prop.vt != VT_BSTR)
+            return E_INVALIDARG;
+        _props.QxhOutputPath = UnicodeStringToMultiByte(prop.bstrVal);
+    }
    
     else if (name.IsEqualTo("cl"))
     {

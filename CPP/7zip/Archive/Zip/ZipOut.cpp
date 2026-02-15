@@ -8,6 +8,7 @@
 #include "../../Common/OffsetStream.h"
 
 #include "ZipOut.h"
+#include "QuickXorHash.h"
 
 namespace NArchive {
 namespace NZip {
@@ -28,6 +29,7 @@ HRESULT COutArchive::SetRestrictionFromCurrent()
 
 HRESULT COutArchive::Create(IOutStream *outStream)
 {
+    _qxhContainer = NULL;
   m_CurPos = 0;
   if (!m_OutBuffer.Create(1 << 16))
     return E_OUTOFMEMORY;
@@ -51,12 +53,16 @@ void COutArchive::SeekToCurPos()
 
 void COutArchive::WriteBytes(const void *data, size_t size)
 {
+ if (_qxhContainer)
+    _qxhContainer->AddToBuffer((const uint8_t*)data, size);
   m_OutBuffer.WriteBytes(data, size);
   m_CurPos += size;
 }
 
 void COutArchive::Write8(Byte b)
 {
+ if (_qxhContainer)
+   _qxhContainer->AddToBuffer(&b, 1);
   m_OutBuffer.WriteByte(b);
   m_CurPos++;
 }
@@ -251,6 +257,9 @@ void COutArchive::WriteLocalHeader_Replace(CItemOut &item)
     // so local header with Descriptor flag must be written to local header before.
   }
 
+  if (_qxhContainer && _qxhContainer->IsActive() && _qxhContainer->IsBuffering())
+      _qxhContainer->RewindBuffer();
+
   const UInt64 nextPos = m_CurPos;
   m_CurPos = m_LocalHeaderPos;
   SeekToCurPos();
@@ -258,7 +267,6 @@ void COutArchive::WriteLocalHeader_Replace(CItemOut &item)
   m_CurPos = nextPos;
   SeekToCurPos();
 }
-
 
 void COutArchive::WriteDescriptor(const CItemOut &item)
 {

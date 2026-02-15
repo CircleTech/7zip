@@ -3,11 +3,14 @@
 #ifndef ZIP7_INC_ZIP_OUT_H
 #define ZIP7_INC_ZIP_OUT_H
 
+class CQuickXorHash;
+
 #include "../../../Common/MyCom.h"
 
 #include "../../Common/OutBuffer.h"
 
 #include "ZipItem.h"
+#include "QuickXorHash.h"
 
 namespace NArchive {
 namespace NZip {
@@ -54,7 +57,8 @@ class COutArchive
   UInt32 m_LocalFileHeaderSize;
   UInt32 m_ExtraSize;
   bool m_IsZip64;
-
+  CQuickXorHash* _qxhContainer;
+    
   void WriteBytes(const void *data, size_t size);
   void Write8(Byte b);
   void Write16(UInt16 val);
@@ -73,9 +77,11 @@ class COutArchive
   void WriteCentralHeader(const CItemOut &item);
 
   void SeekToCurPos();
+  
 public:
   CMyComPtr<IStreamSetRestriction> SetRestriction;
 
+  
   HRESULT ClearRestriction();
   HRESULT SetRestrictionFromCurrent();
   HRESULT Create(IOutStream *outStream);
@@ -87,6 +93,8 @@ public:
     m_CurPos += distanceToMove;
   }
 
+  void SetQxhContainer(CQuickXorHash* qxh) { _qxhContainer = qxh; }
+
   void WriteLocalHeader(CItemOut &item, bool needCheck = false);
   void WriteLocalHeader_Replace(CItemOut &item);
 
@@ -95,7 +103,7 @@ public:
   HRESULT WriteCentralDir(const CObjectVector<CItemOut> &items, const CByteBuffer *comment);
 
   void CreateStreamForCompressing(CMyComPtr<IOutStream> &outStream);
-  void CreateStreamForCopying(CMyComPtr<ISequentialOutStream> &outStream);
+  void CreateStreamForCopying(CMyComPtr<ISequentialOutStream> &outStream);  
 };
 
 }}

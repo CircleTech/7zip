@@ -25,6 +25,8 @@ struct CBaseProps: public CMultiMethodProps
   bool IsCtEnhancedMode;
   CCtEnhancedZipProps CtEnhancedProps;
 
+  AString QxhOutputPath;
+
   void Init()
   {
     CMultiMethodProps::Init();
@@ -48,6 +50,7 @@ struct CCompressionMethodMode: public CBaseProps
   bool IsRealAesMode() const { return Password_Defined && IsAesMode; }
 
   bool IsRealCtEnhancedMode() const { return Password_Defined && IsCtEnhancedMode; }
+
 
   CCompressionMethodMode()
   {

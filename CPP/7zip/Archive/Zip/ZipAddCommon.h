@@ -3,6 +3,8 @@
 #ifndef ZIP7_INC_ZIP_ADD_COMMON_H
 #define ZIP7_INC_ZIP_ADD_COMMON_H
 
+class CQuickXorHash;
+
 #include "../../ICoder.h"
 #include "../../IProgress.h"
 
@@ -16,6 +18,7 @@
 #include "../../Crypto/CtCipherCoder.h"  
 
 #include "ZipCompressionMode.h"
+#include "QuickXorHash.h"
 
 namespace NArchive {
 namespace NZip {
@@ -45,6 +48,8 @@ class CAddCommon  MY_UNCOPYABLE
   CMyComPtr<ICompressCoder> _compressEncoder;
   Byte _compressExtractVersion;
   bool _isLzmaEos;
+  CQuickXorHash* _qxhPlaintext;   // set externally
+  CQuickXorHash* _qxhContainer;   // set externally
 
   CMyComPtr2<ISequentialOutStream, CFilterCoder> _cryptoStream;
 
@@ -60,6 +65,8 @@ public:
   CAddCommon();
   void SetOptions(const CCompressionMethodMode &options);
   ~CAddCommon();
+  void SetQXPlaintext(CQuickXorHash* ptr) { _qxhPlaintext = ptr; };
+  void SetQXContainer(CQuickXorHash* ptr) { _qxhContainer = ptr; };
 
   HRESULT Set_Pre_CompressionResult(bool inSeqMode, bool outSeqMode, UInt64 unpackSize,
       CCompressingResult &opRes) const;

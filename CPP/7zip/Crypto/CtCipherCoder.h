@@ -20,6 +20,7 @@ This code implements CircleTech Enhanced ZIP (CTEnhanced) encryption format:
 #include "HmacSha256.h"
 #include "HmacSha512.h"
 #include "MyAes.h"
+#include "../Archive/Zip/QuickXorHash.h"
 
 namespace NCrypto {
     namespace NCtCipherCoder {
@@ -61,6 +62,7 @@ namespace NCrypto {
             Z7_IFACE_COM7_IMP(ICryptoSetPassword)
         protected:
             CKeyInfo _key;
+            CQuickXorHash* _qxhContainer;
 
             // HMAC context (either SHA-256 or SHA-512)
             CAlignedBuffer _hmacBuf;
@@ -80,6 +82,8 @@ namespace NCrypto {
         public:
             unsigned GetHeaderSize() const { return (unsigned)_key.Props.GetSaltSize() + kLegacyFieldSize; }
             unsigned GetAddPackSize() const { return GetHeaderSize() + (unsigned)_key.Props.GetMacSize(); }
+
+            void SetQxhContainer(CQuickXorHash* qxh) { _qxhContainer = qxh; }
 
             // Set encryption properties from extra field
             bool SetProps(const CCtEnhancedZipProps& props)

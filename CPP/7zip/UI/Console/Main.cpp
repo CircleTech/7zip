@@ -165,6 +165,7 @@ static const char * const kHelpString =
     "    -mec={AES256|Camellia256} : for CTEnhancedZip, use this cipher (default: AES256)\n"
     "    -mekp={HMAC-SHA256|HMAC-SHA512} : for CTEnhancedZip, use this MAC/PRF for PBKDF2 (default: HMAC-SHA256)\n"
     "    -meki={positive integer} : for CTEnhancedZip, use this iteration count for PBKDF2 (default: 5000)\n"
+    "  -mqxh=<output_path> : for CTEnhancedZip, update regime only: compute quickxorhashes of the entire plaintext and the ciphertext part of the container and store them to a text file at output_path\n" 
     #endif  
     "  -o{Directory} : set Output directory\n"
     #ifndef Z7_NO_CRYPTO

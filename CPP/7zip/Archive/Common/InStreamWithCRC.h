@@ -9,6 +9,9 @@
 
 #include "../../IStream.h"
 
+class CQuickXorHash;
+
+
 Z7_CLASS_IMP_NOQIB_2(
   CSequentialInStreamWithCRC
   , ISequentialInStream
@@ -20,11 +23,13 @@ Z7_CLASS_IMP_NOQIB_2(
   bool _wasFinished;
   UInt64 _fullSize;
   bool _skipCrc;
+  CQuickXorHash* _qxhPlaintext; // Not owned
 public:
   
   CSequentialInStreamWithCRC():
     _fullSize((UInt64)(Int64)-1),
-    _skipCrc(false)
+    _skipCrc(false),
+    _qxhPlaintext(NULL)
     {}
 
   void SetStream(ISequentialInStream *stream) { _stream = stream; }
@@ -40,6 +45,7 @@ public:
   UInt32 GetCRC() const { return CRC_GET_DIGEST(_crc); }
   UInt64 GetSize() const { return _size; }
   bool WasFinished() const { return _wasFinished; }
+  void SetQxhPlaintext(CQuickXorHash* qxh) { _qxhPlaintext = qxh; }
 };
 
 

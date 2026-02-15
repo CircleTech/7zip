@@ -158,6 +158,7 @@ namespace NCrypto {
         CBaseCoder::CBaseCoder()
         {
             _hmacOverCalc = 0;
+            _qxhContainer = NULL;
         }
 
         Z7_COM7F_IMF(CBaseCoder::CryptoSetPassword(const Byte* data, UInt32 size))
@@ -266,8 +267,14 @@ namespace NCrypto {
             // Write salt
             RINOK(WriteStream(outStream, _key.Salt, saltSize))
 
-                // Write legacy field (0xFF 0xFF)
-                Byte legacy[kLegacyFieldSize] = { 0xFF, 0xFF };
+            if (_qxhContainer)
+              _qxhContainer->AddToBuffer(_key.Salt, saltSize);
+
+            // Write legacy field (0xFF 0xFF)
+            Byte legacy[kLegacyFieldSize] = { 0xFF, 0xFF };
+
+            if (_qxhContainer)
+               _qxhContainer->AddToBuffer(legacy, kLegacyFieldSize);
             return WriteStream(outStream, legacy, kLegacyFieldSize);
         }
 
@@ -281,6 +288,8 @@ namespace NCrypto {
                 MY_ALIGN(16)
                     Byte mac[64];
                 Hmac512()->Final(mac);
+                if (_qxhContainer)
+                    _qxhContainer->AddToBuffer(mac, macSize);
                 return WriteStream(outStream, mac, macSize);
             }
             else
@@ -288,6 +297,8 @@ namespace NCrypto {
                 MY_ALIGN(16)
                     Byte mac[32];
                 Hmac256()->Final(mac);
+                if (_qxhContainer)
+                    _qxhContainer->AddToBuffer(mac, macSize);
                 return WriteStream(outStream, mac, macSize);
             }
         }
@@ -296,6 +307,9 @@ namespace NCrypto {
         {
             // Encrypt data
             size = _cipherCoder->Filter(data, size);
+
+            if (_qxhContainer)
+                _qxhContainer->AddToBuffer(data, size);
 
             // Update HMAC with encrypted data
             if (_key.Props.MacAlgorithm == NCtMacAlgorithm::kHMAC_SHA512)

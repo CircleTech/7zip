@@ -1044,6 +1044,8 @@
     <ClInclude Include="..\..\Archive\Common\StdAfx.h" />
     <ClInclude Include="..\..\Archive\IArchive.h" />
     <ClInclude Include="..\..\Archive\Zip\CtEnhancedDefs.h" />
+    <ClInclude Include="..\..\Archive\Zip\QuickXorHash.h" />
+    <ClInclude Include="..\..\Archive\Zip\QuickXorHashHandler.h" />
     <ClInclude Include="..\..\Archive\Zip\StdAfx.h" />
     <ClInclude Include="..\..\Archive\Zip\ZipAddCommon.h" />
     <ClInclude Include="..\..\Archive\Zip\ZipCompressionMode.h" />

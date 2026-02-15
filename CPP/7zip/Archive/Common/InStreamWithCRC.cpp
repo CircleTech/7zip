@@ -3,6 +3,7 @@
 #include "StdAfx.h"
 
 #include "InStreamWithCRC.h"
+#include "../Zip/QuickXorHash.h"
 
 Z7_COM7F_IMF(CSequentialInStreamWithCRC::Read(void *data, UInt32 size, UInt32 *processedSize))
 {
@@ -17,6 +18,8 @@ Z7_COM7F_IMF(CSequentialInStreamWithCRC::Read(void *data, UInt32 size, UInt32 *p
       _wasFinished = true;
     else if(!_skipCrc)
         _crc = CrcUpdate(_crc, data, realProcessed);
+    if (_qxhPlaintext)
+        _qxhPlaintext->Update((const uint8_t*)data, realProcessed);
   }
   if (processedSize)
     *processedSize = realProcessed;

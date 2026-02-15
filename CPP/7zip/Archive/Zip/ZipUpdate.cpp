@@ -16,6 +16,7 @@
 #include "../../../Common/AutoPtr.h"
 #include "../../../Common/Defs.h"
 #include "../../../Common/StringConvert.h"
+#include "../../../Common/IntToString.h"
 
 #include "../../../Windows/TimeUtils.h"
 #include "../../../Windows/Thread.h"
@@ -35,6 +36,7 @@
 #include "ZipAddCommon.h"
 #include "ZipOut.h"
 #include "ZipUpdate.h"
+#include "../../../Windows/FileIO.h"
 
 using namespace NWindows;
 using namespace NSynchronization;
@@ -688,6 +690,23 @@ static HRESULT Update2St(
 
   CAddCommon compressor;
   compressor.SetOptions(*options);
+  CQuickXorHash qxhPlaintext;
+  CQuickXorHash qxhContainer;
+  bool computeQuickXorHashes = false;
+  if (!options->QxhOutputPath.IsEmpty()) {
+      /*
+      AString debugPathPlaintext = options->QxhOutputPath;
+      debugPathPlaintext += ".plaintext.dbg";
+      qxhPlaintext.EnableDebugDump((const char*)debugPathPlaintext);
+      AString debugPathContainer = options->QxhOutputPath;
+      debugPathContainer += ".container.dbg";
+      qxhContainer.EnableDebugDump((const char*)debugPathContainer);
+      */
+      compressor.SetQXPlaintext(&qxhPlaintext);      
+      compressor.SetQXContainer(& qxhContainer);
+      archive.SetQxhContainer(&qxhContainer);
+      computeQuickXorHashes = true;
+  }
   
   CObjectVector<CItemOut> items;
   UInt64 unpackSizeTotal = 0, packSizeTotal = 0;
@@ -744,6 +763,12 @@ static HRESULT Update2St(
         // seqMode = true; // to test seqMode
 
         UpdatePropsFromStream(updateOptions, ui, fileInStream, updateCallback, totalComplexity);
+        bool isCiphertextEntry = ui.Name.IsPrefixedBy_Ascii_NoCase("ciphertext-");
+        qxhPlaintext.SetActive(computeQuickXorHashes && isCiphertextEntry);
+        qxhContainer.SetActive(computeQuickXorHashes && isCiphertextEntry);
+        if (computeQuickXorHashes) {
+            qxhContainer.StartBuffering();
+        }
 
         CCompressingResult compressingResult;
         
@@ -763,7 +788,6 @@ static HRESULT Update2St(
 
         CMyComPtr<IOutStream> outStream;
         archive.CreateStreamForCompressing(outStream);
-        
         RINOK(compressor.Compress(
             EXTERNAL_CODECS_LOC_VARS
             fileInStream, outStream,
@@ -778,6 +802,8 @@ static HRESULT Update2St(
         SetItemInfoFromCompressingResult(compressingResult, *options, item);
 
         archive.WriteLocalHeader_Replace(item);
+        if (computeQuickXorHashes)
+            qxhContainer.FlushBuffer();
        }
        // if (reportArcProp) RINOK(ReportProps(reportArcProp, ui.IndexInClient, item, options->IsRealAesMode()))
        RINOK(updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK))
@@ -805,7 +831,35 @@ static HRESULT Update2St(
   RINOK(lps->SetCur())
 
   RINOK(archive.WriteCentralDir(items, comment))
-
+      
+  // Write QuickXorHash results
+  // Write QuickXorHash results
+      if (computeQuickXorHashes)
+      {
+          NWindows::NFile::NIO::COutFile qxhFile;
+          if (qxhFile.Create_ALWAYS(us2fs(GetUnicodeString(options->QxhOutputPath))))
+          {
+              AString result;
+              result += "plaintext_hash=";
+              result += qxhPlaintext.GetBase64Digest().c_str();
+              result += "\n";
+              result += "plaintext_length=";
+              char buf[32];
+              ConvertUInt64ToString(qxhPlaintext.GetSize(), buf);
+              result += buf;
+              result += "\n";
+              result += "container_hash=";
+              result += qxhContainer.GetBase64Digest().c_str();
+              result += "\n";
+              result += "container_length=";
+              ConvertUInt64ToString(qxhContainer.GetSize(), buf);
+              result += buf;
+              result += "\n";
+              qxhFile.WriteFull((const void*)(const char*)result, result.Len());
+              qxhFile.Close();
+          }
+          qxhPlaintext.CloseDebugDump();
+      }
   /*
   CTotalStats stat;
   stat.Size = unpackSizeTotal;

@@ -75,6 +75,7 @@ Z7_COM7F_IMF(CLzmaEncoder::Code(ISequentialInStream *inStream, ISequentialOutStr
 
 CAddCommon::CAddCommon():
     _isLzmaEos(false),    
+    _qxhPlaintext(NULL),
     _filterSpec(NULL),         
     _filterAesSpec(NULL),      
     _filterCtEnhancedSpec(NULL),
@@ -205,6 +206,9 @@ HRESULT CAddCommon::Compress(
   if (_options.IsCtEnhancedMode) {
       inCrcStream->SetSkipCrc(true);
   }
+  if (_qxhPlaintext)
+      inCrcStream->SetQxhPlaintext(_qxhPlaintext);
+  
   CMyComPtr<IInStream> inStream2;
   if (!inSeqMode)
   {
@@ -295,6 +299,9 @@ HRESULT CAddCommon::Compress(
           if (!_cryptoStream->Filter)
           {
               _cryptoStream->Filter = _filterCtEnhancedSpec = new NCrypto::NCtCipherCoder::CEncoder;
+              if (_qxhContainer)
+                  _filterCtEnhancedSpec->SetQxhContainer(_qxhContainer);
+
 
               // Set CTEnhanced properties (with actual compression method)
               CCtEnhancedZipProps props = _options.CtEnhancedProps;
