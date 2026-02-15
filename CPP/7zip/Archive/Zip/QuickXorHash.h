@@ -12,7 +12,10 @@
 #ifndef QUICK_XOR_HASH_H
 #define QUICK_XOR_HASH_H
 
+#if defined(_MSC_VER)
+#pragma warning(push)
 #pragma warning(disable : 4996)
+#endif
 
 
 #include <cstdint>
@@ -109,7 +112,7 @@ public:
         delete[] _entryBuf;
     }
 
-    bool IsActive() const { return _active; };
+    bool IsActive() const { return _active; }
 
     void SetActive(bool active) { _active = active; }
 
@@ -246,14 +249,14 @@ private:
 #ifdef Z7_QXH_USE_SSE2
         for (; i + 16 <= len; i += 16)
         {
-            __m128i d = _mm_loadu_si128((const __m128i*)(dst + i));
-            __m128i s = _mm_loadu_si128((const __m128i*)(src + i));
-            _mm_storeu_si128((__m128i*)(dst + i), _mm_xor_si128(d, s));
+            __m128i d = _mm_loadu_si128((const __m128i*)(const void*)(dst + i));
+            __m128i s = _mm_loadu_si128((const __m128i*)(const void*)(src + i));
+            _mm_storeu_si128((__m128i*)(void*)(dst + i), _mm_xor_si128(d, s));
         }
 #endif
 
         for (; i + 8 <= len; i += 8)
-            *(uint64_t*)(dst + i) ^= *(const uint64_t*)(src + i);
+            *(uint64_t*)(void*)(dst + i) ^= *(const uint64_t*)(const void*)(src + i);
 
         for (; i < len; i++)
             dst[i] ^= src[i];
@@ -294,5 +297,9 @@ private:
         return result;
     }
 };
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 #endif // QUICK_XOR_HASH_H

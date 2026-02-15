@@ -65,8 +65,8 @@ public:
   CAddCommon();
   void SetOptions(const CCompressionMethodMode &options);
   ~CAddCommon();
-  void SetQXPlaintext(CQuickXorHash* ptr) { _qxhPlaintext = ptr; };
-  void SetQXContainer(CQuickXorHash* ptr) { _qxhContainer = ptr; };
+  void SetQXPlaintext(CQuickXorHash* ptr) { _qxhPlaintext = ptr; }
+  void SetQXContainer(CQuickXorHash* ptr) { _qxhContainer = ptr; }
 
   HRESULT Set_Pre_CompressionResult(bool inSeqMode, bool outSeqMode, UInt64 unpackSize,
       CCompressingResult &opRes) const;
